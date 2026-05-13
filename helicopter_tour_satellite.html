@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Villa Crespi – Helicopter Tour Monte Rosa</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Georgia, serif; background: #0a0a0a; }
+    #map { width: 100vw; height: 100vh; }
+
+    /* Pannello info */
+    #panel {
+      position: absolute;
+      top: 20px; left: 20px;
+      z-index: 1000;
+      background: rgba(10, 15, 25, 0.88);
+      border: 1px solid #c9a96e;
+      border-radius: 4px;
+      padding: 0;
+      width: 240px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+    }
+    #panel-header {
+      background: rgba(201, 169, 110, 0.15);
+      border-bottom: 1px solid #c9a96e44;
+      padding: 12px 16px;
+      text-align: center;
+    }
+    #panel-header .brand {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: #c9a96e;
+      text-transform: uppercase;
+    }
+    #panel-header .title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #f0e6d3;
+      letter-spacing: 1px;
+      margin: 4px 0 2px;
+    }
+    #panel-header .sub {
+      font-size: 10px;
+      color: #c9a96e;
+      font-style: italic;
+      letter-spacing: 0.5px;
+    }
+    #panel-body {
+      padding: 12px 16px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(201,169,110,0.12);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label {
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: #c9a96e;
+      text-transform: uppercase;
+    }
+    .info-value {
+      font-size: 11px;
+      color: #f0e6d3;
+      text-align: right;
+    }
+
+    /* Legenda */
+    #legend {
+      position: absolute;
+      bottom: 30px; left: 20px;
+      z-index: 1000;
+      background: rgba(10, 15, 25, 0.85);
+      border: 1px solid #c9a96e44;
+      border-radius: 4px;
+      padding: 10px 14px;
+      backdrop-filter: blur(6px);
+    }
+    .legend-title {
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: #c9a96e;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 5px 0;
+    }
+    .legend-line {
+      width: 36px;
+      height: 2px;
+      position: relative;
+    }
+    .legend-row span {
+      font-size: 9px;
+      color: #d0c8b8;
+    }
+
+    /* Layer switcher custom */
+    #layers {
+      position: absolute;
+      top: 20px; right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .layer-btn {
+      background: rgba(10, 15, 25, 0.85);
+      border: 1px solid #c9a96e44;
+      color: #c9a96e;
+      padding: 7px 12px;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 3px;
+      font-family: Georgia, serif;
+      backdrop-filter: blur(6px);
+      transition: all 0.2s;
+    }
+    .layer-btn:hover, .layer-btn.active {
+      background: rgba(201,169,110,0.25);
+      border-color: #c9a96e;
+      color: #f0e6d3;
+    }
+
+    /* Popup personalizzati */
+    .leaflet-popup-content-wrapper {
+      background: rgba(10,15,25,0.92);
+      border: 1px solid #c9a96e;
+      border-radius: 4px;
+      color: #f0e6d3;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+    .leaflet-popup-tip { background: rgba(10,15,25,0.92); }
+    .leaflet-popup-content { margin: 12px 16px; }
+    .popup-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #c9a96e;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .popup-sub {
+      font-size: 10px;
+      color: #b0a890;
+      font-style: italic;
+      margin-bottom: 8px;
+    }
+    .popup-detail {
+      font-size: 10px;
+      color: #d0c8b8;
+      line-height: 1.7;
+    }
+
+    /* Marker stile */
+    .villa-marker, .rosa-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .villa-marker:hover, .rosa-marker:hover { transform: scale(1.2); }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- Pannello info -->
+<div id="panel">
+  <div id="panel-header">
+    <div class="brand">✦ Villa Crespi ✦</div>
+    <div class="title">HELICOPTER TOUR</div>
+    <div class="sub">Monte Rosa Experience</div>
+  </div>
+  <div id="panel-body">
+    <div class="info-row">
+      <span class="info-label">Partenza</span>
+      <span class="info-value">Villa Crespi, Orta</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Arrivo</span>
+      <span class="info-value">Monte Rosa 4.634 m</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Distanza</span>
+      <span class="info-value">~65 km ciascuna</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Durata</span>
+      <span class="info-value">~45 min totali</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Quota max</span>
+      <span class="info-value">4.634 m s.l.m.</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Regione</span>
+      <span class="info-value">Piemonte – Italia</span>
+    </div>
+  </div>
+</div>
+
+<!-- Layer switcher -->
+<div id="layers">
+  <button class="layer-btn active" onclick="setLayer('satellite')" id="btn-satellite">Satellite</button>
+  <button class="layer-btn" onclick="setLayer('terrain')" id="btn-terrain">Terreno</button>
+  <button class="layer-btn" onclick="setLayer('topo')" id="btn-topo">Topo</button>
+</div>
+
+<!-- Legenda -->
+<div id="legend">
+  <div class="legend-title">Percorso</div>
+  <div class="legend-row">
+    <svg width="36" height="10">
+      <line x1="0" y1="5" x2="36" y2="5" stroke="#f0c040" stroke-width="2.5"
+            stroke-dasharray="8,5" stroke-linecap="round"/>
+      <polygon points="36,5 28,1 28,9" fill="#f0c040"/>
+    </svg>
+    <span>Andata</span>
+  </div>
+  <div class="legend-row">
+    <svg width="36" height="10">
+      <line x1="0" y1="5" x2="36" y2="5" stroke="#c09030" stroke-width="2"
+            stroke-dasharray="6,5" stroke-linecap="round"/>
+      <polygon points="0,5 8,1 8,9" fill="#c09030"/>
+    </svg>
+    <span>Ritorno</span>
+  </div>
+</div>
+
+<script>
+  // ── Coordinate chiave ──────────────────────────────
+  const VILLA  = [45.7981, 8.4173];   // Villa Crespi, Orta San Giulio
+  const ROSA   = [45.9325, 7.8669];   // Monte Rosa – Punta Dufour
+
+  // ── Waypoints andata (Villa Crespi → Monte Rosa) ──
+  const andata = [
+    [45.7981, 8.4173],   // Villa Crespi
+    [45.8200, 8.4100],   // sul lago d'Orta
+    [45.8762, 8.4080],   // Omegna (cima lago)
+    [45.9050, 8.3600],   // colline verso Ossola
+    [45.9270, 8.2830],   // Gravellona Toce / Mergozzo
+    [45.9420, 8.1600],   // Val d'Ossola west
+    [45.9460, 8.0300],   // ingresso massiccio
+    [45.9400, 7.9500],   // alta quota
+    [45.9325, 7.8669],   // Monte Rosa
+  ];
+
+  // ── Waypoints ritorno (arco leggermente più sud) ──
+  const ritorno = [
+    [45.9325, 7.8669],   // Monte Rosa
+    [45.9300, 7.9600],
+    [45.9200, 8.0600],
+    [45.9050, 8.1800],
+    [45.8850, 8.3000],
+    [45.8600, 8.3800],
+    [45.8200, 8.4000],
+    [45.7981, 8.4173],   // Villa Crespi
+  ];
+
+  // ── Inizializzazione mappa ─────────────────────────
+  const map = L.map('map', {
+    center: [45.875, 8.14],
+    zoom: 11,
+    zoomControl: true,
+  });
+
+  // ── Layer tiles ────────────────────────────────────
+  const layers = {
+    satellite: L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      { attribution: 'Tiles © Esri, Maxar, Earthstar Geographics', maxZoom: 19 }
+    ),
+    terrain: L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}',
+      { attribution: 'Tiles © Esri', maxZoom: 13 }
+    ),
+    topo: L.tileLayer(
+      'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+      { attribution: '© OpenTopoMap (CC-BY-SA)', maxZoom: 17, subdomains: ['a','b','c'] }
+    ),
+  };
+  layers.satellite.addTo(map);
+  let currentLayer = 'satellite';
+
+  function setLayer(name) {
+    map.removeLayer(layers[currentLayer]);
+    layers[name].addTo(map);
+    currentLayer = name;
+    document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + name).classList.add('active');
+  }
+
+  // ── Percorsi ───────────────────────────────────────
+  // Glow andata
+  L.polyline(andata, {
+    color: '#f0c040', weight: 7,
+    opacity: 0.18, dashArray: null,
+  }).addTo(map);
+
+  // Linea andata
+  L.polyline(andata, {
+    color: '#f0c040', weight: 2.8,
+    opacity: 0.95, dashArray: '13 8',
+    lineCap: 'round',
+  }).addTo(map);
+
+  // Glow ritorno
+  L.polyline(ritorno, {
+    color: '#c09030', weight: 6,
+    opacity: 0.15,
+  }).addTo(map);
+
+  // Linea ritorno
+  L.polyline(ritorno, {
+    color: '#c09030', weight: 2.2,
+    opacity: 0.82, dashArray: '8 8',
+    lineCap: 'round',
+  }).addTo(map);
+
+  // ── Marker Villa Crespi ────────────────────────────
+  const villaIcon = L.divIcon({
+    className: '',
+    html: `
+      <div style="position:relative;width:36px;height:36px;display:flex;align-items:center;justify-content:center;">
+        <div style="position:absolute;width:36px;height:36px;border-radius:50%;
+                    border:2px solid #c9a96e;animation:pulse 2s infinite;opacity:0.5;"></div>
+        <div style="width:22px;height:22px;border-radius:50%;background:#c9a96e;
+                    border:2px solid #8b6914;display:flex;align-items:center;justify-content:center;
+                    box-shadow:0 2px 10px rgba(0,0,0,0.6);">
+          <svg width="12" height="12" viewBox="0 0 12 12">
+            <rect x="1" y="5" width="10" height="6" fill="#8b4513" rx="1"/>
+            <polygon points="0,5 6,1 12,5" fill="#a0522d"/>
+            <rect x="4.5" y="7" width="3" height="4" fill="#f5deb3"/>
+          </svg>
+        </div>
+      </div>
+      <style>
+        @keyframes pulse {
+          0%   { transform:scale(1);   opacity:0.5; }
+          70%  { transform:scale(1.8); opacity:0;   }
+          100% { transform:scale(1);   opacity:0;   }
+        }
+      </style>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+  });
+
+  L.marker(VILLA, { icon: villaIcon })
+    .addTo(map)
+    .bindPopup(`
+      <div class="popup-title">VILLA CRESPI</div>
+      <div class="popup-sub">Orta San Giulio · Lago d'Orta</div>
+      <div class="popup-detail">
+        Partenza tour elicottero<br>
+        45°47'N · 8°25'E<br>
+        Quota: 294 m s.l.m.
+      </div>`);
+
+  // ── Marker Monte Rosa ──────────────────────────────
+  const rosaIcon = L.divIcon({
+    className: '',
+    html: `
+      <div style="position:relative;width:40px;height:44px;display:flex;flex-direction:column;align-items:center;">
+        <div style="position:absolute;width:40px;height:40px;border-radius:50%;
+                    border:2px solid #88aacc;animation:pulse2 3s infinite;opacity:0.4;top:2px;"></div>
+        <svg width="32" height="32" viewBox="0 0 32 32" style="position:relative;z-index:1;">
+          <polygon points="16,2 4,28 28,28" fill="#7a8e9e" stroke="#4a6070" stroke-width="1.5"/>
+          <polygon points="16,2 10,16 22,16" fill="white" opacity="0.9"/>
+          <circle cx="16" cy="2" r="3.5" fill="#c9a96e" stroke="#8b6914" stroke-width="1.2"/>
+        </svg>
+      </div>
+      <style>
+        @keyframes pulse2 {
+          0%   { transform:scale(1);   opacity:0.4; }
+          70%  { transform:scale(2);   opacity:0;   }
+          100% { transform:scale(1);   opacity:0;   }
+        }
+      </style>`,
+    iconSize: [40, 44],
+    iconAnchor: [20, 28],
+  });
+
+  L.marker(ROSA, { icon: rosaIcon })
+    .addTo(map)
+    .bindPopup(`
+      <div class="popup-title">MONTE ROSA</div>
+      <div class="popup-sub">Punta Dufour · Confine Italia–Svizzera</div>
+      <div class="popup-detail">
+        Seconda vetta delle Alpi<br>
+        45°55'N · 7°52'E<br>
+        <strong style="color:#c9a96e">4.634 m s.l.m.</strong>
+      </div>`);
+
+  // ── Elicottero a metà percorso ─────────────────────
+  // Punto 4 dell'andata = metà circa
+  const heliPos = andata[4];
+  const heliIcon = L.divIcon({
+    className: '',
+    html: `
+      <div style="transform:rotate(-20deg);filter:drop-shadow(0 2px 6px rgba(0,0,0,0.8));">
+        <svg width="56" height="36" viewBox="-28 -18 56 36" xmlns="http://www.w3.org/2000/svg">
+          <!-- Fusoliera -->
+          <path d="M-20,2 C-20,-6 -12,-11 -2,-11 L14,-9 C21,-7 25,-2 23,2 C21,7 14,9 6,9 L-14,9 C-18,8 -20,5 -20,2Z"
+                fill="#1a2535" stroke="#c9a96e" stroke-width="1.2"/>
+          <!-- Cabina -->
+          <path d="M-18,1 C-18,-6 -12,-10 -4,-10 L6,-9 C13,-7 15,-2 13,2 C11,5 6,8 0,8 L-12,8 C-17,7 -18,4 -18,1Z"
+                fill="#3a85c8" stroke="#1a3050" stroke-width="0.8" opacity="0.88"/>
+          <!-- Riflesso -->
+          <path d="M-15,-1 C-14,-7 -9,-9 -3,-9 L3,-8 C-2,-8 -8,-6 -13,-3Z" fill="white" opacity="0.35"/>
+          <!-- Boom di coda -->
+          <path d="M23,0 L42,-5 L47,-5" stroke="#1a2535" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <polygon points="41,-5 46,-2 46,-8" fill="#1a2535"/>
+          <!-- Pattini -->
+          <line x1="-16" y1="9"  x2="12" y2="9"  stroke="#c9a96e" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="-10" y1="6"  x2="-10" y2="10" stroke="#1a2535" stroke-width="1.8"/>
+          <line x1="6"   y1="6"  x2="6"   y2="10" stroke="#1a2535" stroke-width="1.8"/>
+          <!-- Rotore principale (3 pale) -->
+          <g transform="translate(0,-14)">
+            <circle r="3.5" fill="#8b6914" stroke="#c9a96e" stroke-width="1"/>
+            <path d="M0,0 C10,-2 24,-3 28,-2 C24,-1 10,0 0,0Z" fill="#c9a96e" transform="rotate(0)"/>
+            <path d="M0,0 C10,-2 24,-3 28,-2 C24,-1 10,0 0,0Z" fill="#c9a96e" transform="rotate(120)"/>
+            <path d="M0,0 C10,-2 24,-3 28,-2 C24,-1 10,0 0,0Z" fill="#c9a96e" transform="rotate(240)"/>
+          </g>
+          <!-- Rotore di coda -->
+          <g transform="translate(44,-5)">
+            <circle r="2" fill="#8b6914" stroke="#c9a96e" stroke-width="0.8"/>
+            <line x1="-6" y1="0" x2="6" y2="0" stroke="#c9a96e" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="0" y1="-6" x2="0" y2="6" stroke="#c9a96e" stroke-width="1.8" stroke-linecap="round"/>
+          </g>
+          <!-- Logo VC -->
+          <text x="4" y="4" text-anchor="middle" font-size="6" fill="#c9a96e"
+                font-family="Georgia,serif" font-weight="700">VC</text>
+        </svg>
+      </div>`,
+    iconSize: [56, 36],
+    iconAnchor: [28, 18],
+  });
+
+  L.marker(heliPos, { icon: heliIcon, zIndexOffset: 500 })
+    .addTo(map)
+    .bindPopup(`
+      <div class="popup-title">ELICOTTERO IN VOLO</div>
+      <div class="popup-sub">Sopra la Val d'Ossola</div>
+      <div class="popup-detail">
+        Tour esclusivo Villa Crespi<br>
+        Quota di crociera: ~2.500 m<br>
+        Velocità: ~220 km/h
+      </div>`);
+
+  // ── Adatta la vista al percorso ────────────────────
+  map.fitBounds(L.latLngBounds([...andata, ...ritorno]).pad(0.08));
+
+</script>
+</body>
+</html>
