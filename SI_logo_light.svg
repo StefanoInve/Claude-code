@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" width="400" height="480">
   <defs>
-    <!-- Gold for elements rendered on the black circle -->
     <linearGradient id="gDiagL" x1="15%" y1="0%" x2="85%" y2="100%">
       <stop offset="0%" stop-color="#D4B254"/>
       <stop offset="50%" stop-color="#C9A84C"/>
       <stop offset="100%" stop-color="#B8860B"/>
     </linearGradient>
-    <!-- Dark gold for text on white background -->
     <linearGradient id="gHorzL" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#9A6E00"/>
       <stop offset="38%" stop-color="#C9A84C"/>
@@ -26,24 +24,22 @@
 
   <!-- Black badge circle -->
   <circle cx="200" cy="200" r="107" fill="#0A0A0A"/>
-  <!-- Gold ring border -->
+  <!-- Single gold ring border (inner ring removed) -->
   <circle cx="200" cy="200" r="107" fill="none" stroke="url(#gDiagL)" stroke-width="1.5"/>
-  <!-- Inner accent ring -->
-  <circle cx="200" cy="200" r="103" fill="none" stroke="url(#gDiagL)" stroke-width="1.5" opacity="0.28"/>
 
-  <!-- Private jet: dark gold on black circle -->
-  <g transform="translate(200,197) rotate(-27)" fill="url(#gDiagL)">
-    <!-- Fuselage -->
-    <path d="M 80,0 C 75,-4.5 50,-5.5 20,-5.5 C -30,-5.5 -60,-4 -68,-2 L -78,0 L -68,2.5 C -60,4.5 -30,5.5 20,5.5 C 50,5.5 75,4.5 80,0 Z"/>
-    <!-- Main swept wing -->
-    <path d="M 18,4.5 L -15,29 L -30,29 L 5,4.5 Z"/>
+  <!-- Private jet: larger, properly proportioned, -20° diagonal, centered -->
+  <g transform="translate(200,200) rotate(-20)" fill="url(#gDiagL)" opacity="0.72">
+    <!-- Fuselage: 224px long, 14px tall -->
+    <path d="M 112,0 C 100,-5 65,-7 20,-7 C -40,-7 -80,-5.5 -96,-3 L -112,0 L -96,3 C -80,5.5 -40,7 20,7 C 65,7 100,5 112,0 Z"/>
+    <!-- Main swept wing: large, clearly recognizable -->
+    <path d="M 22,6.5 L -35,52 L -52,52 L 5,6.5 Z"/>
     <!-- Vertical tail fin -->
-    <path d="M -60,-4 L -67,-21 L -76,-17 L -72,-4 Z"/>
+    <path d="M -88,-6 L -98,-28 L -108,-23 L -104,-6 Z"/>
     <!-- Horizontal stabiliser -->
-    <path d="M -60,4.5 L -68,14.5 L -77,14.5 L -72,4.5 Z"/>
+    <path d="M -88,6 L -98,22 L -108,22 L -104,6 Z"/>
   </g>
 
-  <!-- Monogram SI (dark gold on black) -->
+  <!-- Monogram SI — dominant, rendered above jet -->
   <text
     x="200" y="235"
     font-family="Didot, 'Bodoni MT', 'Playfair Display', Georgia, serif"
@@ -53,10 +49,10 @@
     fill="url(#gRadL)"
     letter-spacing="-2">SI</text>
 
-  <!-- Thin separator line on white -->
+  <!-- Separator line -->
   <line x1="90" y1="326" x2="310" y2="326" stroke="url(#gHorzL)" stroke-width="1.5" opacity="0.5"/>
 
-  <!-- Brand name (dark gold on white) -->
+  <!-- Brand name -->
   <text
     x="200" y="350"
     font-family="Didot, 'Bodoni MT', 'Playfair Display', Georgia, serif"
@@ -66,8 +62,8 @@
     fill="url(#gHorzL)"
     letter-spacing="4">STEFANO INVERSINI</text>
 
-  <!-- Decorative flanking lines + tagline (dark gold on white) -->
-  <line x1="26" y1="372" x2="72" y2="372" stroke="url(#gHorzL)" stroke-width="1.5"/>
+  <!-- Extended decorative lines balanced with tagline width -->
+  <line x1="12" y1="372" x2="78" y2="372" stroke="url(#gHorzL)" stroke-width="1.5"/>
   <text
     x="200" y="376"
     font-family="Didot, 'Bodoni MT', 'Playfair Display', Georgia, serif"
@@ -75,7 +71,7 @@
     font-weight="300"
     text-anchor="middle"
     fill="url(#gHorzL)"
-    letter-spacing="5">PRIVATE LUXURY SERVICES</text>
-  <line x1="328" y1="372" x2="374" y2="372" stroke="url(#gHorzL)" stroke-width="1.5"/>
+    letter-spacing="4">PRIVATE LUXURY SERVICES</text>
+  <line x1="322" y1="372" x2="388" y2="372" stroke="url(#gHorzL)" stroke-width="1.5"/>
 
 </svg>
