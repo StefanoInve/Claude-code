@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SI_logo_light_sm.svg — compact variant for small formats
+  Use at: business card, email signature, PDF header, ≥80 px wide
+  Full logo (SI_logo_light.svg) recommended at ≥200 px wide
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 230" width="200" height="230">
+  <defs>
+    <linearGradient id="gDL" x1="15%" y1="0%" x2="85%" y2="100%">
+      <stop offset="0%" stop-color="#D4B254"/>
+      <stop offset="50%" stop-color="#C9A84C"/>
+      <stop offset="100%" stop-color="#B8860B"/>
+    </linearGradient>
+    <linearGradient id="gHL" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9A6E00"/>
+      <stop offset="40%" stop-color="#C9A84C"/>
+      <stop offset="60%" stop-color="#C9A84C"/>
+      <stop offset="100%" stop-color="#9A6E00"/>
+    </linearGradient>
+    <radialGradient id="gRL" cx="42%" cy="36%" r="62%">
+      <stop offset="0%" stop-color="#E2C462"/>
+      <stop offset="52%" stop-color="#C9A84C"/>
+      <stop offset="100%" stop-color="#B8860B"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="200" height="230" fill="#FFFFFF"/>
+
+  <!-- Black badge circle -->
+  <circle cx="100" cy="102" r="93" fill="#0A0A0A"/>
+  <!-- Single gold ring border — proportionally heavier for small sizes -->
+  <circle cx="100" cy="102" r="93" fill="none" stroke="url(#gDL)" stroke-width="2"/>
+
+  <!-- Monogram SI — dominant -->
+  <text x="100" y="133"
+    font-family="Didot, 'Bodoni MT', 'Playfair Display', Georgia, serif"
+    font-size="90" font-weight="400" text-anchor="middle"
+    fill="url(#gRL)" letter-spacing="-1">SI</text>
+
+  <!-- Separator -->
+  <line x1="38" y1="163" x2="162" y2="163" stroke="url(#gHL)" stroke-width="1.5" opacity="0.55"/>
+
+  <!-- Tagline -->
+  <text x="100" y="180"
+    font-family="Didot, 'Bodoni MT', 'Playfair Display', Georgia, serif"
+    font-size="13" font-weight="300" text-anchor="middle"
+    fill="url(#gHL)" letter-spacing="2.5">PRIVATE LUXURY SERVICES</text>
+
+  <!-- Name -->
+  <text x="100" y="218"
+    font-family="Didot, 'Bodoni MT', 'Playfair Display', Georgia, serif"
+    font-size="11" font-weight="400" text-anchor="middle"
+    fill="url(#gHL)" letter-spacing="3">STEFANO INVERSINI</text>
+</svg>
