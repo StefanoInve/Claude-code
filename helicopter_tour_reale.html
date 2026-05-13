@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Villa Crespi – Helicopter Grand Tour</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      background: #000;
+    }
+
+    /* Layout: mappa sopra, footer sotto */
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* ── MAPPA ── */
+    #map {
+      flex: 1;
+      width: 100%;
+    }
+
+    /* ── FOOTER LUXURY ── */
+    #footer {
+      width: 100%;
+      background: #0e1420;
+      border-top: 1.5px solid #c9a96e;
+      display: flex;
+      align-items: stretch;
+      flex-shrink: 0;
+    }
+
+    .f-section {
+      padding: 10px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-right: 1px solid #c9a96e22;
+    }
+    .f-section:last-child { border-right: none; }
+    .f-section.brand { width: 180px; align-items: center; background: rgba(201,169,110,0.06); }
+    .f-section.route { flex: 1; }
+    .f-section.stats { width: 220px; }
+    .f-section.client { width: 220px; }
+
+    .f-label {
+      font-family: 'Cinzel', serif;
+      font-size: 6pt;
+      letter-spacing: 2.5px;
+      color: #c9a96e;
+      margin-bottom: 3px;
+    }
+    .f-brand-name {
+      font-family: 'Cinzel', serif;
+      font-size: 13pt;
+      font-weight: 600;
+      color: #f0e6d3;
+      letter-spacing: 3px;
+      line-height: 1.2;
+    }
+    .f-brand-sub {
+      font-size: 7pt;
+      color: #8b6914;
+      font-style: italic;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+    .f-stars { color: #c9a96e; font-size: 8pt; letter-spacing: 5px; margin-top: 4px; }
+
+    .route-steps {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .step {
+      text-align: center;
+    }
+    .step-num {
+      font-family: 'Cinzel', serif;
+      font-size: 5.5pt;
+      color: #c9a96e;
+      letter-spacing: 1px;
+    }
+    .step-name {
+      font-family: 'Cinzel', serif;
+      font-size: 9pt;
+      font-weight: 600;
+      color: #f0e6d3;
+    }
+    .step-alt {
+      font-size: 7pt;
+      color: #8a7a6a;
+      font-style: italic;
+    }
+    .arrow {
+      color: #c9a96e;
+      font-size: 13pt;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .stat-row {
+      display: flex;
+      gap: 14px;
+    }
+    .stat { text-align: center; }
+    .stat-val {
+      font-family: 'Cinzel', serif;
+      font-size: 11pt;
+      font-weight: 600;
+      color: #f0e6d3;
+    }
+    .stat-lbl {
+      font-size: 6pt;
+      color: #8a7a6a;
+      font-style: italic;
+    }
+
+    .client-name {
+      font-size: 14pt;
+      font-style: italic;
+      font-weight: 300;
+      color: #f0e6d3;
+      margin-bottom: 4px;
+    }
+    .date-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .date-lbl { font-family: 'Cinzel', serif; font-size: 5.5pt; color: #c9a96e; letter-spacing: 1px; }
+    .date-line { flex: 1; border-bottom: 0.5px solid #c9a96e55; height: 1px; }
+
+    /* ── PULSANTE STAMPA ── */
+    #print-btn {
+      position: fixed;
+      top: 16px; right: 16px;
+      z-index: 2000;
+      background: rgba(10,15,25,0.9);
+      border: 1px solid #c9a96e;
+      color: #c9a96e;
+      padding: 9px 18px;
+      font-family: 'Cinzel', serif;
+      font-size: 8pt;
+      letter-spacing: 2px;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+    }
+    #print-btn:hover { background: #c9a96e; color: #0e1420; }
+
+    /* Attribuzione mappa */
+    .leaflet-control-attribution { font-size: 7px !important; }
+
+    /* ── POPUP ── */
+    .leaflet-popup-content-wrapper {
+      background: rgba(10,15,25,0.95);
+      border: 1px solid #c9a96e;
+      border-radius: 2px;
+      color: #f0e6d3;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+    }
+    .leaflet-popup-tip { background: rgba(10,15,25,0.95); }
+    .leaflet-popup-content { margin: 10px 14px; }
+    .popup-title { font-family:'Cinzel',serif; font-size: 11pt; color: #c9a96e; margin-bottom:4px; letter-spacing:1px; }
+    .popup-sub { font-size: 8.5pt; color: #a09080; font-style:italic; margin-bottom:5px; }
+    .popup-body { font-size: 9pt; color: #d0c8b8; line-height:1.6; }
+
+    /* ══════════════════════════════
+       STAMPA
+    ══════════════════════════════ */
+    @media print {
+      @page { size: A4 landscape; margin: 0; }
+
+      html, body { width: 297mm; height: 210mm; overflow: hidden; }
+
+      .wrapper { width: 297mm; height: 210mm; }
+
+      #map {
+        width: 297mm;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      #footer {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      #print-btn { display: none; }
+
+      .leaflet-control-zoom,
+      .leaflet-control-attribution { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<button id="print-btn" onclick="window.print()">⎙ &nbsp;STAMPA A4</button>
+
+<div class="wrapper">
+
+  <!-- MAPPA REALE -->
+  <div id="map"></div>
+
+  <!-- FOOTER LUXURY -->
+  <div id="footer">
+
+    <!-- Brand -->
+    <div class="f-section brand">
+      <div class="f-brand-name">VILLA<br>CRESPI</div>
+      <div class="f-brand-sub">Orta San Giulio · Lago d'Orta</div>
+      <div class="f-stars">✦ ✦ ✦</div>
+    </div>
+
+    <!-- Route -->
+    <div class="f-section route">
+      <div class="f-label">PERCORSO</div>
+      <div class="route-steps">
+        <div class="step">
+          <div class="step-num">PARTENZA</div>
+          <div class="step-name">Villa Crespi</div>
+          <div class="step-alt">294 m s.l.m.</div>
+        </div>
+        <div class="arrow">›</div>
+        <div class="step">
+          <div class="step-num">TAPPA ①</div>
+          <div class="step-name">Monte Rosa</div>
+          <div class="step-alt">4.634 m s.l.m.</div>
+        </div>
+        <div class="arrow">›</div>
+        <div class="step">
+          <div class="step-num">TAPPA ②</div>
+          <div class="step-name">Cervino</div>
+          <div class="step-alt">4.478 m s.l.m.</div>
+        </div>
+        <div class="arrow">›</div>
+        <div class="step">
+          <div class="step-num">RIENTRO</div>
+          <div class="step-name">Villa Crespi</div>
+          <div class="step-alt">294 m s.l.m.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="f-section stats">
+      <div class="f-label">DATI DEL VOLO</div>
+      <div class="stat-row">
+        <div class="stat">
+          <div class="stat-val">~200 km</div>
+          <div class="stat-lbl">distanza totale</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">~75 min</div>
+          <div class="stat-lbl">durata volo</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">4.634 m</div>
+          <div class="stat-lbl">quota massima</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client -->
+    <div class="f-section client">
+      <div class="f-label">IN ONORE DI</div>
+      <div class="client-name">Marchesa Sofia Barbaro</div>
+      <div class="date-row">
+        <span class="date-lbl">DATA</span>
+        <div class="date-line"></div>
+      </div>
+    </div>
+
+  </div><!-- /footer -->
+</div><!-- /wrapper -->
+
+<script>
+  // ── Coordinate ──────────────────────────────────────────
+  const VILLA = [45.7981, 8.4173];
+  const ROSA  = [45.9325, 7.8669];
+  const CERV  = [45.9764, 7.6586];
+
+  // ── Mappa ───────────────────────────────────────────────
+  const map = L.map('map', {
+    zoomControl: true,
+    attributionControl: true,
+  });
+
+  // Layer satellite ESRI (principale)
+  const satellite = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    { attribution: 'Imagery © Esri, Maxar, Earthstar Geographics', maxZoom: 18 }
+  ).addTo(map);
+
+  // Layer topo come alternativa
+  const topo = L.tileLayer(
+    'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    { attribution: '© OpenTopoMap (CC-BY-SA)', maxZoom: 17, subdomains: ['a','b','c'] }
+  );
+
+  // Layer switcher
+  L.control.layers(
+    { 'Satellite': satellite, 'Topografico': topo },
+    {},
+    { position: 'topleft' }
+  ).addTo(map);
+
+  // ── Percorso triangolare ────────────────────────────────
+
+  // Andata: Villa Crespi → Monte Rosa (waypoints realistici)
+  const leg1 = [
+    [45.7981, 8.4173],
+    [45.8762, 8.4080],  // Omegna / cima lago Orta
+    [45.9270, 8.2830],  // Gravellona Toce
+    [45.9420, 8.1200],  // Val d'Ossola
+    [45.9380, 8.0000],
+    [45.9325, 7.8669],  // Monte Rosa
+  ];
+
+  // Monte Rosa → Cervino
+  const leg2 = [
+    [45.9325, 7.8669],
+    [45.9520, 7.7800],
+    [45.9764, 7.6586],  // Cervino
+  ];
+
+  // Ritorno: Cervino → Villa Crespi (arco più a sud)
+  const leg3 = [
+    [45.9764, 7.6586],
+    [45.9400, 7.8200],
+    [45.9100, 8.0500],
+    [45.8800, 8.2500],
+    [45.8400, 8.3800],
+    [45.7981, 8.4173],  // Villa Crespi
+  ];
+
+  // Glow (alone dorato) su tutto il percorso
+  [leg1, leg2].forEach(leg => {
+    L.polyline(leg, { color: '#f0c040', weight: 8, opacity: 0.18, lineCap: 'round' }).addTo(map);
+  });
+  L.polyline(leg3, { color: '#c09030', weight: 7, opacity: 0.15, lineCap: 'round' }).addTo(map);
+
+  // Trattini andata (oro)
+  [leg1, leg2].forEach(leg => {
+    L.polyline(leg, {
+      color: '#f0d060',
+      weight: 2.5,
+      opacity: 1,
+      dashArray: '12 8',
+      lineCap: 'round',
+    }).addTo(map);
+  });
+
+  // Trattini ritorno (bronzo)
+  L.polyline(leg3, {
+    color: '#c09030',
+    weight: 2,
+    opacity: 0.85,
+    dashArray: '8 8',
+    lineCap: 'round',
+  }).addTo(map);
+
+  // ── Marker Villa Crespi ─────────────────────────────────
+  const villaIcon = L.divIcon({
+    className: '',
+    html: `
+      <div style="position:relative;width:38px;height:38px;display:flex;align-items:center;justify-content:center;">
+        <div style="position:absolute;width:38px;height:38px;border-radius:50%;
+             border:2px solid #f0c040;animation:p1 2s infinite;"></div>
+        <div style="width:24px;height:24px;border-radius:50%;background:#c9a96e;
+             border:2px solid #8b6914;display:flex;align-items:center;justify-content:center;
+             box-shadow:0 2px 12px rgba(0,0,0,0.7);position:relative;z-index:1;">
+          <svg width="13" height="13" viewBox="0 0 13 13">
+            <rect x="1.5" y="6" width="10" height="6" fill="#8b4513" rx="1"/>
+            <polygon points="0.5,6 6.5,1 12.5,6" fill="#a0522d"/>
+            <rect x="5" y="8" width="3" height="4" fill="#f5deb3"/>
+          </svg>
+        </div>
+      </div>
+      <style>
+        @keyframes p1{0%{transform:scale(1);opacity:.6}70%{transform:scale(2);opacity:0}100%{transform:scale(1);opacity:0}}
+      </style>`,
+    iconSize: [38, 38], iconAnchor: [19, 19],
+  });
+
+  // ── Marker Monte Rosa ───────────────────────────────────
+  const rosaIcon = L.divIcon({
+    className: '',
+    html: `
+      <div style="display:flex;flex-direction:column;align-items:center;position:relative;">
+        <div style="position:absolute;width:36px;height:36px;border-radius:50%;top:2px;left:2px;
+             border:2px solid #88ccff;animation:p2 3s infinite;"></div>
+        <svg width="40" height="38" viewBox="0 0 40 38" style="position:relative;z-index:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))">
+          <polygon points="20,2 4,34 36,34" fill="#7a9aaa" stroke="#3a6070" stroke-width="1.5"/>
+          <polygon points="20,2 12,18 28,18" fill="white" opacity="0.92"/>
+          <circle cx="20" cy="2" r="4" fill="#c9a96e" stroke="#8b6914" stroke-width="1.3"/>
+        </svg>
+      </div>
+      <style>
+        @keyframes p2{0%{transform:scale(1);opacity:.5}70%{transform:scale(2.2);opacity:0}100%{transform:scale(1);opacity:0}}
+      </style>`,
+    iconSize: [40, 40], iconAnchor: [20, 34],
+  });
+
+  // ── Marker Cervino ──────────────────────────────────────
+  const cervinoIcon = L.divIcon({
+    className: '',
+    html: `
+      <div style="display:flex;flex-direction:column;align-items:center;position:relative;">
+        <div style="position:absolute;width:36px;height:36px;border-radius:50%;top:2px;left:2px;
+             border:2px solid #88ccff;animation:p2 3s infinite 0.5s;"></div>
+        <svg width="40" height="38" viewBox="0 0 40 38" style="position:relative;z-index:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))">
+          <polygon points="20,2 8,34 32,34" fill="#6a8898" stroke="#3a5870" stroke-width="1.5"/>
+          <polygon points="20,2 14,16 26,16" fill="white" opacity="0.9"/>
+          <circle cx="20" cy="2" r="4" fill="#c9a96e" stroke="#8b6914" stroke-width="1.3"/>
+        </svg>
+      </div>`,
+    iconSize: [40, 40], iconAnchor: [20, 34],
+  });
+
+  // ── Elicottero ──────────────────────────────────────────
+  const heliIcon = L.divIcon({
+    className: '',
+    html: `
+      <div style="transform:rotate(-10deg);filter:drop-shadow(0 3px 8px rgba(0,0,0,.8));">
+        <svg width="58" height="38" viewBox="-29 -19 58 38">
+          <path d="M-20,2 C-20,-6 -12,-11 -2,-11 L14,-9 C21,-7 25,-2 23,2 C21,7 14,9 6,9 L-14,9 C-18,8 -20,5 -20,2Z"
+                fill="#1a2535" stroke="#c9a96e" stroke-width="1.2"/>
+          <path d="M-18,1 C-18,-6 -12,-10 -4,-10 L6,-9 C13,-7 15,-2 13,2 C11,5 6,8 0,8 L-12,8 C-17,7 -18,4 -18,1Z"
+                fill="#3a85c8" opacity="0.88"/>
+          <path d="M-15,-1 C-14,-7 -9,-9 -3,-9 L3,-8 C-2,-8 -8,-5 -13,-2Z" fill="white" opacity="0.35"/>
+          <path d="M23,0 L42,-5 L47,-5" stroke="#1a2535" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <polygon points="41,-5 46,-2 46,-8" fill="#1a2535"/>
+          <line x1="-16" y1="9" x2="12" y2="9" stroke="#c9a96e" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="-10" y1="6" x2="-10" y2="10" stroke="#1a2535" stroke-width="1.8"/>
+          <line x1="6"   y1="6" x2="6"   y2="10" stroke="#1a2535" stroke-width="1.8"/>
+          <g transform="translate(0,-14)">
+            <circle r="3.5" fill="#8b6914" stroke="#c9a96e" stroke-width="1"/>
+            <path d="M0,0 C10,-2 24,-3 28,-2 C24,-1 10,0 0,0Z" fill="#c9a96e" transform="rotate(0)"/>
+            <path d="M0,0 C10,-2 24,-3 28,-2 C24,-1 10,0 0,0Z" fill="#c9a96e" transform="rotate(120)"/>
+            <path d="M0,0 C10,-2 24,-3 28,-2 C24,-1 10,0 0,0Z" fill="#c9a96e" transform="rotate(240)"/>
+          </g>
+          <g transform="translate(44,-5)">
+            <circle r="2" fill="#8b6914" stroke="#c9a96e" stroke-width="0.8"/>
+            <line x1="-6" y1="0" x2="6" y2="0" stroke="#c9a96e" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="0" y1="-6" x2="0" y2="6" stroke="#c9a96e" stroke-width="1.8" stroke-linecap="round"/>
+          </g>
+          <text x="4" y="4" text-anchor="middle" font-size="6" fill="#c9a96e"
+                font-family="Georgia,serif" font-weight="700">VC</text>
+        </svg>
+      </div>`,
+    iconSize: [58, 38], iconAnchor: [29, 19],
+  });
+
+  // ── Aggiunta marker ─────────────────────────────────────
+  L.marker(VILLA, { icon: villaIcon }).addTo(map)
+    .bindPopup(`
+      <div class="popup-title">VILLA CRESPI</div>
+      <div class="popup-sub">Orta San Giulio · Lago d'Orta</div>
+      <div class="popup-body">
+        Partenza &amp; rientro<br>
+        45°47'54"N · 8°25'2"E<br>
+        Quota: 294 m s.l.m.
+      </div>`);
+
+  L.marker(ROSA, { icon: rosaIcon }).addTo(map)
+    .bindPopup(`
+      <div class="popup-title">MONTE ROSA</div>
+      <div class="popup-sub">Punta Dufour · Alpi Pennine</div>
+      <div class="popup-body">
+        Seconda vetta delle Alpi<br>
+        45°55'57"N · 7°52'01"E<br>
+        <strong style="color:#c9a96e">4.634 m s.l.m.</strong>
+      </div>`);
+
+  L.marker(CERV, { icon: cervinoIcon }).addTo(map)
+    .bindPopup(`
+      <div class="popup-title">CERVINO</div>
+      <div class="popup-sub">Matterhorn · Italia–Svizzera</div>
+      <div class="popup-body">
+        La piramide delle Alpi<br>
+        45°58'35"N · 7°39'31"E<br>
+        <strong style="color:#c9a96e">4.478 m s.l.m.</strong>
+      </div>`);
+
+  // Elicottero a metà percorso (tra Rosa e Cervino)
+  const heliPos = [45.9520, 7.7800];
+  L.marker(heliPos, { icon: heliIcon, zIndexOffset: 500 }).addTo(map);
+
+  // ── Zoom automatico sul percorso ────────────────────────
+  const allPoints = [...leg1, ...leg2, ...leg3];
+  map.fitBounds(L.latLngBounds(allPoints).pad(0.12));
+
+</script>
+</body>
+</html>
