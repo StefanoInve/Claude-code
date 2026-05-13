@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" width="400" height="480">
+  <defs>
+    <linearGradient id="gDiag" x1="15%" y1="0%" x2="85%" y2="100%">
+      <stop offset="0%" stop-color="#F5D98B"/>
+      <stop offset="50%" stop-color="#C9A84C"/>
+      <stop offset="100%" stop-color="#A87820"/>
+    </linearGradient>
+    <linearGradient id="gHorz" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#A87820"/>
+      <stop offset="35%" stop-color="#F5D98B"/>
+      <stop offset="65%" stop-color="#F5D98B"/>
+      <stop offset="100%" stop-color="#A87820"/>
+    </linearGradient>
+    <radialGradient id="gRad" cx="42%" cy="36%" r="62%">
+      <stop offset="0%" stop-color="#F5D98B"/>
+      <stop offset="52%" stop-color="#C9A84C"/>
+      <stop offset="100%" stop-color="#A87820"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="480" fill="#0A0A0A"/>
+
+  <!-- Outer circle ring -->
+  <circle cx="200" cy="200" r="107" fill="none" stroke="url(#gDiag)" stroke-width="1.5"/>
+  <!-- Inner accent ring -->
+  <circle cx="200" cy="200" r="103" fill="none" stroke="url(#gDiag)" stroke-width="1.5" opacity="0.28"/>
+
+  <!-- Private jet: translate to circle centre, rotate -27° (lower-left → upper-right) -->
+  <g transform="translate(200,197) rotate(-27)" fill="url(#gDiag)">
+    <!-- Fuselage -->
+    <path d="M 80,0 C 75,-4.5 50,-5.5 20,-5.5 C -30,-5.5 -60,-4 -68,-2 L -78,0 L -68,2.5 C -60,4.5 -30,5.5 20,5.5 C 50,5.5 75,4.5 80,0 Z"/>
+    <!-- Main swept wing -->
+    <path d="M 18,4.5 L -15,29 L -30,29 L 5,4.5 Z"/>
+    <!-- Vertical tail fin -->
+    <path d="M -60,-4 L -67,-21 L -76,-17 L -72,-4 Z"/>
+    <!-- Horizontal stabiliser -->
+    <path d="M -60,4.5 L -68,14.5 L -77,14.5 L -72,4.5 Z"/>
+  </g>
+
+  <!-- Monogram SI -->
+  <text
+    x="200" y="235"
+    font-family="Didot, 'Bodoni MT', 'Playfair Display', Georgia, serif"
+    font-size="96"
+    font-weight="400"
+    text-anchor="middle"
+    fill="url(#gRad)"
+    letter-spacing="-2">SI</text>
+
+  <!-- Thin separator line below circle -->
+  <line x1="90" y1="326" x2="310" y2="326" stroke="url(#gHorz)" stroke-width="1.5" opacity="0.45"/>
+
+  <!-- Brand name -->
+  <text
+    x="200" y="350"
+    font-family="Didot, 'Bodoni MT', 'Playfair Display', Georgia, serif"
+    font-size="15"
+    font-weight="400"
+    text-anchor="middle"
+    fill="url(#gHorz)"
+    letter-spacing="4">STEFANO INVERSINI</text>
+
+  <!-- Decorative flanking lines + tagline -->
+  <line x1="26" y1="372" x2="72" y2="372" stroke="url(#gHorz)" stroke-width="1.5"/>
+  <text
+    x="200" y="376"
+    font-family="Didot, 'Bodoni MT', 'Playfair Display', Georgia, serif"
+    font-size="11"
+    font-weight="300"
+    text-anchor="middle"
+    fill="url(#gHorz)"
+    letter-spacing="5">PRIVATE LUXURY SERVICES</text>
+  <line x1="328" y1="372" x2="374" y2="372" stroke="url(#gHorz)" stroke-width="1.5"/>
+
+</svg>
