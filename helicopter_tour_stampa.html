@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Villa Crespi – Helicopter Grand Tour · Stampa</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&display=swap');
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #c8c0b0;
+      display: flex; justify-content: center; align-items: flex-start;
+      padding: 24px; min-height: 100vh;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+
+    .page {
+      width: 297mm; background: white;
+      box-shadow: 0 10px 60px rgba(0,0,0,0.4);
+      display: flex; flex-direction: column;
+    }
+
+    /* ── INTESTAZIONE ── */
+    .header {
+      background: #0e1420;
+      border-bottom: 1.5px solid #c9a96e;
+      padding: 7px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .h-brand { font-family:'Cinzel',serif; font-size:13pt; font-weight:600; color:#f0e6d3; letter-spacing:3px; }
+    .h-brand span { color:#c9a96e; }
+    .h-title { font-family:'Cinzel',serif; font-size:10pt; color:#c9a96e; letter-spacing:3px; text-align:center; }
+    .h-client { text-align:right; }
+    .h-client-lbl { font-family:'Cinzel',serif; font-size:5.5pt; color:#c9a96e; letter-spacing:2px; }
+    .h-client-name { font-size:12pt; font-style:italic; color:#f0e6d3; }
+
+    /* ── MAPPA ── */
+    .map-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      line-height: 0;
+    }
+    .map-wrap svg { width:100%; height:100%; display:block; }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: #0e1420;
+      border-top: 1.5px solid #c9a96e;
+      padding: 8px 18px;
+      display: flex; align-items: center; gap: 0;
+    }
+    .f-seg { padding: 4px 16px; border-right: 1px solid #c9a96e33; text-align:center; }
+    .f-seg:last-child { border-right: none; }
+    .f-seg.wide { flex:1; }
+    .f-lbl { font-family:'Cinzel',serif; font-size:5pt; letter-spacing:2px; color:#c9a96e; margin-bottom:2px; }
+    .f-val { font-family:'Cinzel',serif; font-size:9.5pt; color:#f0e6d3; font-weight:600; }
+    .f-sub { font-size:6.5pt; color:#8a7a6a; font-style:italic; }
+
+    .route-line {
+      display:flex; align-items:center; gap:5px; justify-content:center;
+    }
+    .rt { text-align:center; }
+    .rt-top { font-family:'Cinzel',serif; font-size:5pt; color:#c9a96e; letter-spacing:1px; }
+    .rt-name { font-family:'Cinzel',serif; font-size:8pt; color:#f0e6d3; }
+    .rt-alt { font-size:6pt; color:#8a7a6a; font-style:italic; }
+    .arr { color:#c9a96e; font-size:12pt; }
+
+    /* STAMPA */
+    @media print {
+      @page { size:A4 landscape; margin:0; }
+      body { background:white; padding:0; }
+      .page { box-shadow:none; width:100%; height:100vh; }
+      .print-btn { display:none !important; }
+      .map-wrap svg { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .header, .footer { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    }
+
+    .print-btn {
+      position:fixed; bottom:20px; right:20px; z-index:999;
+      background:#0e1420; color:#c9a96e; border:1px solid #c9a96e;
+      padding:9px 20px; font-family:'Cinzel',serif; font-size:8pt; letter-spacing:2px;
+      cursor:pointer;
+    }
+    .print-btn:hover { background:#c9a96e; color:#0e1420; }
+  </style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">⎙ &nbsp;STAMPA A4</button>
+
+<div class="page">
+
+  <!-- INTESTAZIONE -->
+  <div class="header">
+    <div class="h-brand">VILLA <span>CRESPI</span></div>
+    <div class="h-title">HELICOPTER GRAND TOUR<br><span style="font-size:7pt;letter-spacing:2px;color:#8a7a6a">MONTE ROSA &amp; CERVINO EXPERIENCE</span></div>
+    <div class="h-client">
+      <div class="h-client-lbl">IN ONORE DI</div>
+      <div class="h-client-name">Marchesa Sofia Barbaro</div>
+    </div>
+  </div>
+
+  <!-- MAPPA CARTOGRAFICA -->
+  <div class="map-wrap">
+  <!--
+    Coordinate system:
+    Area: lon 7.48–8.72°E, lat 45.58–46.18°N
+    SVG 1120×500
+    x = (lon - 7.48) / 1.24 × 1120
+    y = (46.18 - lat) / 0.60 × 500
+
+    Key points:
+    Villa Crespi (45.798, 8.417): x=850, y=319
+    Monte Rosa  (45.933, 7.867): x=356, y=206
+    Cervino     (45.976, 7.659): x=168, y=170
+    Omegna      (45.876, 8.408): x=843, y=252
+    Domodossola (46.113, 8.294): x=740, y=56
+    Verbania    (45.928, 8.551): x=972, y=210
+    Zermatt     (46.019, 7.749): x=245, y=128
+    Macugnaga   (45.966, 7.966): x=441, y=181
+    Alagna VS   (45.848, 7.935): x=413, y=276
+    Gravellona  (45.927, 8.428): x=861, y=213
+  -->
+  <svg viewBox="0 0 1120 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <defs>
+
+      <!-- Gradiente ipometrico principale (da ovest a est, da Nord ad alta quota a Sud pianura) -->
+      <linearGradient id="terr" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#d8d0c0"/><!-- alta quota/ghiacciai Nord -->
+        <stop offset="25%"  stop-color="#c8b888"/><!-- zone alpine -->
+        <stop offset="55%"  stop-color="#c8d898"/><!-- fondovalle/prealpino -->
+        <stop offset="100%" stop-color="#d8e8b0"/><!-- pianura -->
+      </linearGradient>
+
+      <!-- Alone per Monte Rosa (zona nevosa) -->
+      <radialGradient id="gMR" cx="356" cy="206" r="180" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"   stop-color="#e8e8e0" stop-opacity="0.9"/>
+        <stop offset="35%"  stop-color="#c8c0a8" stop-opacity="0.7"/>
+        <stop offset="100%" stop-color="#c8b888" stop-opacity="0"/>
+      </radialGradient>
+
+      <!-- Alone per Cervino -->
+      <radialGradient id="gCV" cx="168" cy="170" r="120" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"   stop-color="#e0ddd8" stop-opacity="0.9"/>
+        <stop offset="40%"  stop-color="#c8c0a8" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#c8b888" stop-opacity="0"/>
+      </radialGradient>
+
+      <!-- Gradiente generale Alpine belt -->
+      <linearGradient id="alpine" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#c0b898" stop-opacity="0.95"/>
+        <stop offset="100%" stop-color="#c0b898" stop-opacity="0"/>
+      </linearGradient>
+
+      <!-- Ombra per etichette -->
+      <filter id="lbl">
+        <feFlood flood-color="white" flood-opacity="0.88" result="bg"/>
+        <feComposite in="bg" in2="SourceGraphic" operator="in" result="bgclip"/>
+        <feGaussianBlur in="bgclip" stdDeviation="2" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+
+      <!-- Box etichetta bianca -->
+      <filter id="box">
+        <feFlood flood-color="white" flood-opacity="0.95" result="bg"/>
+        <feComposite in="bg" in2="SourceGraphic" operator="in"/>
+      </filter>
+
+      <!-- Glow percorso -->
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+
+      <!-- Clip mappa -->
+      <clipPath id="mapclip">
+        <rect width="1120" height="500"/>
+      </clipPath>
+    </defs>
+
+    <g clip-path="url(#mapclip)">
+
+    <!-- ═══════════ SFONDO TERRENO ═══════════ -->
+    <rect width="1120" height="500" fill="url(#terr)"/>
+
+    <!-- Fascia alpina nord (più scura) -->
+    <rect width="1120" height="280" fill="url(#alpine)"/>
+
+    <!-- Zona alta montagna/ghiacciai (poligono irregolare zona nord-ovest) -->
+    <path d="M 0,0 L 0,250 C 60,240 100,230 140,215 C 160,207 180,195 220,185
+             C 260,175 300,185 340,190 C 380,195 420,200 460,210
+             C 500,220 540,228 580,232 C 620,235 650,230 680,225
+             C 710,220 730,215 760,212 C 790,209 820,210 850,208
+             C 880,206 910,204 940,202 C 970,200 1000,200 1040,198
+             C 1080,196 1100,196 1120,195 L 1120,0 Z"
+          fill="#c8bca0" opacity="0.55"/>
+
+    <!-- Radiali ipometrici attorno ai picchi -->
+    <circle cx="356" cy="206" r="220" fill="url(#gMR)"/>
+    <circle cx="168" cy="170" r="140" fill="url(#gCV)"/>
+
+    <!-- Zona nevosa Monte Rosa (poligono dettagliato) -->
+    <path d="M 280,260 C 295,240 308,220 320,205 C 330,192 340,182 356,172
+             C 370,163 382,165 395,175 C 408,185 415,200 420,218
+             C 425,235 422,252 415,265 C 408,278 395,285 378,285
+             C 360,285 340,278 320,270 C 305,265 290,262 280,260 Z"
+          fill="#e8e8e0" opacity="0.85"/>
+
+    <!-- Zona nevosa Cervino (più piccola, piramidale) -->
+    <path d="M 120,215 C 130,200 142,186 155,174 C 163,167 168,162 175,162
+             C 182,162 188,168 196,180 C 204,192 208,205 205,218
+             C 202,230 192,238 178,240 C 165,242 148,236 135,228 C 126,222 121,218 120,215 Z"
+          fill="#e0dcd8" opacity="0.8"/>
+
+    <!-- Catena alpina sfondo (cresta sintetica come fascia) -->
+    <path d="M 0,175 C 30,158 60,148 90,142 C 115,137 138,138 165,132
+             C 195,125 220,118 255,122 C 285,126 312,138 340,148
+             C 368,158 395,168 425,175 C 455,182 485,186 515,188
+             C 545,190 575,188 605,185 C 635,182 665,178 695,175
+             C 725,172 755,170 785,168 C 815,166 845,166 875,165
+             C 905,164 935,164 965,163 C 995,162 1025,162 1055,162
+             C 1080,162 1100,162 1120,162 L 1120,0 L 0,0 Z"
+          fill="#b8b0a0" opacity="0.4"/>
+
+    <!-- ═══════════ LAGHI (forme accurate) ═══════════ -->
+
+    <!-- LAGO D'ORTA — forma realistica elongata N-S
+         Nord: Omegna (45.876°N, 8.408°E) → x=843, y=252
+         Sud:  Pella  (45.690°N, 8.420°E) → x=854, y=407
+         Larghezza media ~28px -->
+    <path d="M 840,252 C 836,262 832,276 830,292 C 828,308 828,325 830,342
+             C 832,359 836,375 840,390 C 844,405 849,415 854,421
+             C 858,415 862,405 865,390 C 868,376 869,360 868,344
+             C 867,328 864,312 860,296 C 857,280 853,265 849,252 Z"
+          fill="#5a9ec8" stroke="#3a7aaa" stroke-width="0.8"/>
+    <!-- Riflesso -->
+    <path d="M 842,265 C 838,280 836,300 836,318 C 838,312 840,292 842,272 Z"
+          fill="white" opacity="0.3"/>
+    <!-- Isola San Giulio -->
+    <ellipse cx="852" cy="348" rx="6" ry="4" fill="#e8d8b0" stroke="#a89060" stroke-width="0.6"/>
+
+    <!-- LAGO MAGGIORE — parziale, lato est della mappa
+         Centro lago intorno a (46.00°N, 8.63°E) → x=1062, y=150
+         Solo la parte visibile -->
+    <path d="M 1050,180 C 1046,198 1043,220 1042,245 C 1041,270 1042,295 1045,318
+             C 1048,340 1053,360 1058,375 C 1062,390 1066,400 1070,408
+             C 1074,400 1077,390 1079,375 C 1082,360 1083,340 1082,318
+             C 1081,295 1079,270 1076,245 C 1074,220 1070,198 1065,180 Z"
+          fill="#5a9ec8" stroke="#3a7aaa" stroke-width="0.8"/>
+
+    <!-- Lago di Mergozzo (piccolo, a nord di Verbania) -->
+    <ellipse cx="1010" cy="215" rx="14" ry="20" fill="#6aaed0" stroke="#3a7aaa" stroke-width="0.6" opacity="0.9"/>
+
+    <!-- ═══════════ FIUMI ═══════════ -->
+
+    <!-- Fiume Toce (da Domodossola verso Lago Maggiore) -->
+    <path d="M 740,56 C 760,90 775,130 790,165 C 805,198 828,220 858,252
+             C 890,280 940,295 980,300 C 1010,303 1030,295 1050,280"
+          stroke="#7ab8d8" stroke-width="2.2" fill="none" opacity="0.7"/>
+
+    <!-- Fiume Nigoglia (emissario Lago Orta verso Toce) -->
+    <path d="M 856,422 C 870,432 895,440 920,445 C 945,450 970,448 990,442"
+          stroke="#7ab8d8" stroke-width="1.4" fill="none" opacity="0.55"/>
+
+    <!-- Sesia (da Alagna verso SE) -->
+    <path d="M 413,276 C 440,305 470,345 510,380 C 540,405 575,425 610,438"
+          stroke="#7ab8d8" stroke-width="1.6" fill="none" opacity="0.5"/>
+
+    <!-- ═══════════ STRADE PRINCIPALI ═══════════ -->
+
+    <!-- SS33 / Autostrada lungo Lago Maggiore -->
+    <path d="M 1050,180 C 1042,220 1038,260 1038,300 C 1038,340 1043,380 1050,410"
+          stroke="#e8a030" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+
+    <!-- SS337 / Ossola (Domodossola → Verbania) -->
+    <path d="M 740,56 C 752,100 768,148 790,188 C 810,225 840,252 862,270"
+          stroke="#e8a030" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+
+    <!-- SS229 attorno al Lago d'Orta -->
+    <path d="M 844,252 C 838,282 832,320 832,358 C 832,394 840,420 854,436
+             C 866,422 872,398 872,366 C 872,334 866,298 858,268 C 852,256 848,252 844,252"
+          stroke="#e8c060" stroke-width="1.2" fill="none" stroke-dasharray="none" opacity="0.7"/>
+
+    <!-- Strada verso Monte Rosa / Macugnaga -->
+    <path d="M 790,188 C 770,200 740,218 700,238 C 660,258 615,268 560,270
+             C 510,272 475,268 441,276"
+          stroke="#e8c060" stroke-width="1" fill="none" opacity="0.6"/>
+
+    <!-- Strada verso Cervinia / Cervino (da Aosta lato, solo parte) -->
+    <path d="M 168,170 C 180,195 195,220 215,245"
+          stroke="#e8c060" stroke-width="1" fill="none" opacity="0.5"/>
+
+    <!-- ═══════════ CONFINE SVIZZERA ═══════════ -->
+    <path d="M 0,118 C 50,112 100,108 140,112 C 165,115 185,112 210,108
+             C 240,103 265,98 295,100 C 315,101 330,106 348,110
+             C 368,114 385,115 405,112 C 430,108 455,105 480,108
+             C 505,111 525,115 555,114 C 580,113 600,110 625,109
+             C 650,108 675,108 700,108 C 725,108 750,108 780,107
+             C 810,106 840,106 870,106 C 900,106 930,106 960,106
+             C 990,106 1020,106 1060,106 L 1120,106"
+          stroke="#8080a0" stroke-width="0.8" fill="none"
+          stroke-dasharray="8,5" opacity="0.55"/>
+
+    <!-- Label SVIZZERA -->
+    <text x="55" y="92" font-family="Georgia,serif" font-size="8.5" fill="#606080"
+          font-style="italic" letter-spacing="2" opacity="0.75">S V I Z Z E R A</text>
+
+    <!-- Label ITALIA (lato italiano) -->
+    <text x="55" y="132" font-family="Georgia,serif" font-size="7.5" fill="#606070"
+          font-style="italic" letter-spacing="1.5" opacity="0.55">I T A L I A</text>
+
+    <!-- Label PIEMONTE -->
+    <text x="600" y="460" font-family="Georgia,serif" font-size="9" fill="#708060"
+          font-style="italic" letter-spacing="3" opacity="0.5">P I E M O N T E</text>
+
+    <!-- Val d'Ossola -->
+    <g transform="translate(754, 160) rotate(-78)">
+      <text text-anchor="middle" font-family="Georgia,serif" font-size="7" fill="#706040"
+            font-style="italic" opacity="0.65" letter-spacing="0.5">Val d'Ossola</text>
+    </g>
+
+    <!-- Valsesia -->
+    <g transform="translate(448, 320) rotate(-60)">
+      <text text-anchor="middle" font-family="Georgia,serif" font-size="7" fill="#706040"
+            font-style="italic" opacity="0.6">Valsesia</text>
+    </g>
+
+    <!-- ═══════════ ETICHETTE GEOGRAFICHE ═══════════ -->
+
+    <!-- Domodossola -->
+    <circle cx="740" cy="56" r="3.5" fill="#c03020" opacity="0.8"/>
+    <text x="748" y="60" font-family="Georgia,serif" font-size="7.5" fill="#2a2a2a">Domodossola</text>
+
+    <!-- Verbania -->
+    <circle cx="972" cy="210" r="3.5" fill="#c03020" opacity="0.8"/>
+    <text x="980" y="214" font-family="Georgia,serif" font-size="7.5" fill="#2a2a2a">Verbania</text>
+
+    <!-- Omegna -->
+    <circle cx="843" cy="252" r="2.5" fill="#806040" opacity="0.8"/>
+    <text x="825" y="248" font-family="Georgia,serif" font-size="7" fill="#2a2a2a" text-anchor="end">Omegna</text>
+
+    <!-- Macugnaga -->
+    <circle cx="441" cy="276" r="2" fill="#806040" opacity="0.7"/>
+    <text x="449" y="280" font-family="Georgia,serif" font-size="7" fill="#2a2a2a">Macugnaga</text>
+
+    <!-- Alagna Valsesia -->
+    <circle cx="413" cy="276" r="2" fill="#806040" opacity="0.7"/>
+    <text x="395" y="268" font-family="Georgia,serif" font-size="7" fill="#2a2a2a" text-anchor="end">Alagna VS</text>
+
+    <!-- Zermatt -->
+    <circle cx="245" cy="128" r="2.5" fill="#806040" opacity="0.7"/>
+    <text x="253" y="132" font-family="Georgia,serif" font-size="7.5" fill="#2a2a2a">Zermatt</text>
+
+    <!-- Stresa -->
+    <circle cx="1055" cy="340" r="2.5" fill="#806040" opacity="0.7"/>
+    <text x="1063" y="344" font-family="Georgia,serif" font-size="7" fill="#2a2a2a">Stresa</text>
+
+    <!-- ═══════════ PERCORSO ELICOTTERO ═══════════ -->
+
+    <!-- GLOW andata + seconda tappa -->
+    <path d="M 850,319 C 820,300 775,268 720,248 C 665,228 600,218 538,214
+             C 476,210 430,212 390,210 L 356,206"
+          stroke="#c9a96e" stroke-width="7" fill="none" opacity="0.2"
+          stroke-linecap="round" filter="url(#glow)"/>
+    <path d="M 356,206 C 330,200 285,190 240,182 L 168,170"
+          stroke="#c9a96e" stroke-width="7" fill="none" opacity="0.2"
+          stroke-linecap="round" filter="url(#glow)"/>
+    <path d="M 168,170 C 220,210 340,275 480,315 C 580,344 710,348 850,330"
+          stroke="#904000" stroke-width="6" fill="none" opacity="0.15"
+          stroke-linecap="round" filter="url(#glow)"/>
+
+    <!-- ANDATA: Villa Crespi → Monte Rosa (trattini oro) -->
+    <path d="M 850,319 C 820,300 775,268 720,248 C 665,228 600,218 538,214
+             C 476,210 430,212 390,210 L 356,206"
+          stroke="#c9a96e" stroke-width="2.2" fill="none"
+          stroke-dasharray="13,7" stroke-linecap="round"/>
+    <!-- Freccia tappa 1 -->
+    <g transform="translate(540,214) rotate(-5)">
+      <polygon points="0,-5 -4,4 4,4" fill="#c9a96e"/>
+    </g>
+
+    <!-- MONTE ROSA → CERVINO (trattini oro scuro) -->
+    <path d="M 356,206 C 330,200 285,190 240,182 L 168,170"
+          stroke="#b08840" stroke-width="2.2" fill="none"
+          stroke-dasharray="13,7" stroke-linecap="round"/>
+    <g transform="translate(250,184) rotate(-172)">
+      <polygon points="0,-5 -4,4 4,4" fill="#b08840"/>
+    </g>
+
+    <!-- RITORNO: Cervino → Villa Crespi (trattini bronzo) -->
+    <path d="M 168,175 C 220,212 342,278 482,318 C 582,346 712,350 850,333"
+          stroke="#a06820" stroke-width="1.8" fill="none"
+          stroke-dasharray="9,7" stroke-linecap="round" opacity="0.85"/>
+    <g transform="translate(482,318) rotate(165)">
+      <polygon points="0,-5 -4,4 4,4" fill="#a06820" opacity="0.85"/>
+    </g>
+    <g transform="translate(715,350) rotate(163)">
+      <polygon points="0,-5 -4,4 4,4" fill="#a06820" opacity="0.85"/>
+    </g>
+
+    <!-- ═══════════ ELICOTTERO ═══════════ -->
+    <g transform="translate(490, 210) rotate(-5)">
+      <path d="M-14,2 C-14,-5 -9,-9 -1,-9 L10,-7 C16,-5 18,-1 17,2
+               C16,5 10,7 4,7 L-10,7 C-14,6 -14,4 -14,2Z"
+            fill="#1a2535" stroke="#c9a96e" stroke-width="0.9"/>
+      <path d="M-12,1 C-12,-4 -8,-7 -2,-7 L5,-6 C10,-5 11,-1 10,2
+               C9,4 5,6 0,6 L-9,6 C-13,5 -12,3 -12,1Z"
+            fill="#3a85c8" opacity="0.85"/>
+      <path d="M15,0 L28,-3 L32,-3" stroke="#1a2535" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+      <polygon points="27,-3 31,-1 31,-5" fill="#1a2535"/>
+      <line x1="-11" y1="7" x2="7" y2="7" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="-6" y1="5" x2="-6" y2="8" stroke="#1a2535" stroke-width="1.2"/>
+      <line x1="4" y1="5" x2="4" y2="8" stroke="#1a2535" stroke-width="1.2"/>
+      <g transform="translate(0,-10)">
+        <circle r="2.2" fill="#8b6914" stroke="#c9a96e" stroke-width="0.6"/>
+        <path d="M0,0 C6,-1.3 16,-1.8 19,-1.3 C16,-0.8 6,0 0,0Z" fill="#c9a96e" transform="rotate(0)"/>
+        <path d="M0,0 C6,-1.3 16,-1.8 19,-1.3 C16,-0.8 6,0 0,0Z" fill="#c9a96e" transform="rotate(120)"/>
+        <path d="M0,0 C6,-1.3 16,-1.8 19,-1.3 C16,-0.8 6,0 0,0Z" fill="#c9a96e" transform="rotate(240)"/>
+      </g>
+      <g transform="translate(30,-3)">
+        <line x1="-4" y1="0" x2="4" y2="0" stroke="#c9a96e" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="0" y1="-4" x2="0" y2="4" stroke="#c9a96e" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+    </g>
+
+    <!-- ═══════════ STOP 1: VILLA CRESPI ═══════════ -->
+    <!-- Marker -->
+    <circle cx="850" cy="319" r="9" fill="#c9a96e" opacity="0.25"/>
+    <circle cx="850" cy="319" r="7" fill="#c9a96e" stroke="#7a5a10" stroke-width="1.5"/>
+    <circle cx="850" cy="319" r="2.5" fill="white"/>
+    <!-- Label box -->
+    <rect x="860" y="295" width="120" height="46" rx="2"
+          fill="white" fill-opacity="0.97" stroke="#c9a96e" stroke-width="1.2"/>
+    <rect x="860" y="295" width="120" height="8" rx="2" fill="#c9a96e"/>
+    <text x="920" y="301.5" text-anchor="middle" font-family="'Cinzel',Georgia,serif"
+          font-size="5.5" fill="white" letter-spacing="1.5">PARTENZA / RIENTRO</text>
+    <text x="866" y="316" font-family="'Cinzel',Georgia,serif"
+          font-size="10" font-weight="600" fill="#8b4513" letter-spacing="0.5">VILLA CRESPI</text>
+    <text x="866" y="328" font-family="Georgia,serif"
+          font-size="7.5" fill="#5a4a3a" font-style="italic">Orta San Giulio</text>
+    <text x="866" y="338" font-family="Georgia,serif"
+          font-size="7" fill="#888">294 m s.l.m.</text>
+    <!-- Linea connettore -->
+    <line x1="857" y1="316" x2="860" y2="318" stroke="#c9a96e" stroke-width="1"/>
+
+    <!-- ═══════════ STOP 2: MONTE ROSA ═══════════ -->
+    <!-- Picco montagna -->
+    <polygon points="356,172 336,208 376,208" fill="#7a9aaa" stroke="#3a6070" stroke-width="1.2"/>
+    <polygon points="356,172 344,194 368,194" fill="white" opacity="0.92"/>
+    <circle cx="356" cy="172" r="4" fill="#c9a96e" stroke="#7a5a10" stroke-width="1.3"/>
+    <circle cx="356" cy="172" r="1.5" fill="white"/>
+    <!-- Label box -->
+    <rect x="252" y="155" width="95" height="46" rx="2"
+          fill="white" fill-opacity="0.97" stroke="#c9a96e" stroke-width="1.2"/>
+    <rect x="252" y="155" width="95" height="8" rx="2" fill="#5a7888"/>
+    <text x="299" y="161.5" text-anchor="middle" font-family="'Cinzel',Georgia,serif"
+          font-size="5.5" fill="white" letter-spacing="1.5">TAPPA ①</text>
+    <text x="258" y="174" font-family="'Cinzel',Georgia,serif"
+          font-size="9" font-weight="600" fill="#1a2a3a" letter-spacing="0.5">MONTE ROSA</text>
+    <text x="258" y="185" font-family="Georgia,serif"
+          font-size="7.5" fill="#4a5a6a" font-style="italic">Punta Dufour</text>
+    <text x="258" y="197" font-family="'Cinzel',Georgia,serif"
+          font-size="8" font-weight="600" fill="#c9a96e">4.634 m s.l.m.</text>
+    <!-- Linea connettore -->
+    <line x1="347" y1="187" x2="352" y2="188" stroke="#c9a96e" stroke-width="1"/>
+
+    <!-- ═══════════ STOP 3: CERVINO ═══════════ -->
+    <!-- Picco Cervino (triangolo stretto tipico) -->
+    <polygon points="168,162 150,200 186,200" fill="#6a8898" stroke="#3a5870" stroke-width="1.2"/>
+    <polygon points="168,162 158,184 178,184" fill="white" opacity="0.9"/>
+    <circle cx="168" cy="162" r="4" fill="#c9a96e" stroke="#7a5a10" stroke-width="1.3"/>
+    <circle cx="168" cy="162" r="1.5" fill="white"/>
+    <!-- Label box -->
+    <rect x="52" y="145" width="98" height="46" rx="2"
+          fill="white" fill-opacity="0.97" stroke="#c9a96e" stroke-width="1.2"/>
+    <rect x="52" y="145" width="98" height="8" rx="2" fill="#5a7888"/>
+    <text x="101" y="151.5" text-anchor="middle" font-family="'Cinzel',Georgia,serif"
+          font-size="5.5" fill="white" letter-spacing="1.5">TAPPA ②</text>
+    <text x="58" y="164" font-family="'Cinzel',Georgia,serif"
+          font-size="10" font-weight="600" fill="#1a2a3a" letter-spacing="0.5">CERVINO</text>
+    <text x="58" y="175" font-family="Georgia,serif"
+          font-size="7.5" fill="#4a5a6a" font-style="italic">Matterhorn</text>
+    <text x="58" y="187" font-family="'Cinzel',Georgia,serif"
+          font-size="8" font-weight="600" fill="#c9a96e">4.478 m s.l.m.</text>
+    <!-- Linea connettore -->
+    <line x1="150" y1="175" x2="152" y2="178" stroke="#c9a96e" stroke-width="1"/>
+
+    <!-- ═══════════ ETICHETTE LAGHI ═══════════ -->
+    <g transform="translate(848,340) rotate(-82)">
+      <text text-anchor="middle" font-family="Georgia,serif" font-size="7.5" fill="#2a5a8a"
+            font-style="italic" opacity="0.9">Lago d'Orta</text>
+    </g>
+    <g transform="translate(1064,295) rotate(-85)">
+      <text text-anchor="middle" font-family="Georgia,serif" font-size="8" fill="#2a5a8a"
+            font-style="italic" opacity="0.85">Lago Maggiore</text>
+    </g>
+    <g transform="translate(1010,210) rotate(-85)">
+      <text text-anchor="middle" font-family="Georgia,serif" font-size="6.5" fill="#2a5a8a"
+            font-style="italic" opacity="0.7">L. Mergozzo</text>
+    </g>
+
+    <!-- ═══════════ LEGENDA ═══════════ -->
+    <rect x="12" y="350" width="175" height="70" rx="2"
+          fill="white" fill-opacity="0.94" stroke="#c9a96e" stroke-width="0.8"/>
+    <rect x="12" y="350" width="175" height="10" rx="2" fill="#0e1420"/>
+    <text x="99" y="358" text-anchor="middle" font-family="'Cinzel',Georgia,serif"
+          font-size="5.5" fill="#c9a96e" letter-spacing="2">LEGENDA PERCORSO</text>
+    <!-- Andata -->
+    <line x1="22" y1="373" x2="60" y2="373" stroke="#c9a96e" stroke-width="2" stroke-dasharray="9,5"/>
+    <polygon points="60,373 54,369 54,377" fill="#c9a96e"/>
+    <text x="67" y="377" font-family="Georgia,serif" font-size="7.5" fill="#2a2a2a">Andata (tappe ①②)</text>
+    <!-- Ritorno -->
+    <line x1="22" y1="392" x2="60" y2="392" stroke="#a06820" stroke-width="1.8" stroke-dasharray="7,5" opacity="0.9"/>
+    <polygon points="22,392 28,388 28,396" fill="#a06820" opacity="0.9"/>
+    <text x="67" y="396" font-family="Georgia,serif" font-size="7.5" fill="#2a2a2a">Ritorno</text>
+    <!-- Strade -->
+    <line x1="22" y1="410" x2="60" y2="410" stroke="#e8a030" stroke-width="2.2"/>
+    <text x="67" y="414" font-family="Georgia,serif" font-size="7.5" fill="#2a2a2a">Strade principali</text>
+
+    <!-- ═══════════ SCALA ═══════════ -->
+    <g transform="translate(12, 440)">
+      <rect x="-4" y="-12" width="120" height="24" rx="2"
+            fill="white" fill-opacity="0.88"/>
+      <line x1="0" y1="0" x2="100" y2="0" stroke="#2a2a2a" stroke-width="1" opacity="0.7"/>
+      <rect x="0" y="-3" width="25" height="6" fill="#2a2a2a" opacity="0.6"/>
+      <rect x="25" y="-3" width="25" height="6" fill="white" stroke="#2a2a2a" stroke-width="0.5" opacity="0.8"/>
+      <rect x="50" y="-3" width="25" height="6" fill="#2a2a2a" opacity="0.6"/>
+      <rect x="75" y="-3" width="25" height="6" fill="white" stroke="#2a2a2a" stroke-width="0.5" opacity="0.8"/>
+      <text x="0"   y="-6" font-size="6" fill="#2a2a2a" font-family="Georgia,serif">0</text>
+      <text x="22"  y="-6" font-size="6" fill="#2a2a2a" font-family="Georgia,serif">15</text>
+      <text x="46"  y="-6" font-size="6" fill="#2a2a2a" font-family="Georgia,serif">30</text>
+      <text x="70"  y="-6" font-size="6" fill="#2a2a2a" font-family="Georgia,serif">45</text>
+      <text x="94"  y="-6" font-size="6" fill="#2a2a2a" font-family="Georgia,serif">60 km</text>
+    </g>
+
+    <!-- ═══════════ ROSA DEI VENTI ═══════════ -->
+    <g transform="translate(1088, 55)">
+      <circle r="26" fill="white" fill-opacity="0.92" stroke="#888" stroke-width="0.8"/>
+      <circle r="4" fill="#c9a96e" stroke="#8b6914" stroke-width="0.8"/>
+      <!-- Punte -->
+      <polygon points="0,-24 -5,-10 0,-16 5,-10" fill="#c03020"/>
+      <polygon points="0,24  -5,10  0,16  5,10"  fill="#555" opacity="0.55"/>
+      <polygon points="-24,0 -10,-5 -16,0 -10,5" fill="#555" opacity="0.4"/>
+      <polygon points="24,0  10,-5  16,0  10,5"  fill="#555" opacity="0.4"/>
+      <!-- Diagonali -->
+      <line x1="-17" y1="-17" x2="17" y2="17" stroke="#888" stroke-width="0.4" opacity="0.4"/>
+      <line x1="17" y1="-17" x2="-17" y2="17" stroke="#888" stroke-width="0.4" opacity="0.4"/>
+      <!-- Lettere -->
+      <text text-anchor="middle" y="-15" font-size="9" font-weight="700" fill="#c03020"
+            font-family="Georgia,serif">N</text>
+      <text text-anchor="middle" y="23" font-size="8" fill="#555" font-family="Georgia,serif" opacity="0.6">S</text>
+      <text x="16" y="4" font-size="8" fill="#555" font-family="Georgia,serif" opacity="0.6">E</text>
+      <text x="-22" y="4" font-size="8" fill="#555" font-family="Georgia,serif" opacity="0.6">O</text>
+    </g>
+
+    <!-- Bordo mappa -->
+    <rect width="1120" height="500" fill="none" stroke="#c9a96e" stroke-width="0.8" opacity="0.5"/>
+
+    </g><!-- /clip -->
+  </svg>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="f-seg">
+      <div class="f-lbl">PERCORSO</div>
+      <div class="route-line">
+        <div class="rt"><div class="rt-top">PARTENZA</div><div class="rt-name">Villa Crespi</div><div class="rt-alt">294 m</div></div>
+        <div class="arr">›</div>
+        <div class="rt"><div class="rt-top">TAPPA ①</div><div class="rt-name">Monte Rosa</div><div class="rt-alt">4.634 m</div></div>
+        <div class="arr">›</div>
+        <div class="rt"><div class="rt-top">TAPPA ②</div><div class="rt-name">Cervino</div><div class="rt-alt">4.478 m</div></div>
+        <div class="arr">›</div>
+        <div class="rt"><div class="rt-top">RIENTRO</div><div class="rt-name">Villa Crespi</div><div class="rt-alt">294 m</div></div>
+      </div>
+    </div>
+    <div class="f-seg">
+      <div class="f-lbl">DISTANZA</div>
+      <div class="f-val">~200 km</div>
+      <div class="f-sub">totale</div>
+    </div>
+    <div class="f-seg">
+      <div class="f-lbl">DURATA</div>
+      <div class="f-val">~75 min</div>
+      <div class="f-sub">volo</div>
+    </div>
+    <div class="f-seg">
+      <div class="f-lbl">QUOTA MAX</div>
+      <div class="f-val">4.634 m</div>
+      <div class="f-sub">Monte Rosa</div>
+    </div>
+    <div class="f-seg">
+      <div class="f-lbl">DATA</div>
+      <div class="f-val" style="font-size:7pt;color:#8a7a6a;border-bottom:0.5px solid #c9a96e55;width:80px;padding-bottom:2px;">&nbsp;</div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>
