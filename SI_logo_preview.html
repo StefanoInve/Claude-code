@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stefano Inversini — Logo Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Georgia, serif;
+      background: #141414;
+      color: #888;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 56px 24px 80px;
+      gap: 72px;
+    }
+
+    /* ── section headings ── */
+    .section-title {
+      font-size: 10px;
+      letter-spacing: 5px;
+      color: #444;
+      text-transform: uppercase;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* ── full-size showcase ── */
+    .row {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #444;
+    }
+
+    .logo-wrap {
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 6px 40px rgba(0,0,0,0.7);
+    }
+
+    /* ── size matrix ── */
+    .matrix {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid #222;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .matrix-header {
+      display: grid;
+      grid-template-columns: 140px repeat(4, 1fr);
+      background: #1a1a1a;
+      border-bottom: 1px solid #222;
+    }
+
+    .matrix-header div {
+      padding: 10px 14px;
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #444;
+      border-right: 1px solid #222;
+    }
+
+    .matrix-header div:last-child { border-right: none; }
+
+    .matrix-row {
+      display: grid;
+      grid-template-columns: 140px repeat(4, 1fr);
+      border-bottom: 1px solid #1a1a1a;
+      align-items: center;
+    }
+
+    .matrix-row:last-child { border-bottom: none; }
+
+    .matrix-row-label {
+      padding: 16px 14px;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #3a3a3a;
+      border-right: 1px solid #1e1e1e;
+    }
+
+    .matrix-cell {
+      padding: 16px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-right: 1px solid #1e1e1e;
+      background: #111;
+    }
+
+    .matrix-cell:last-child { border-right: none; }
+
+    .matrix-cell.light-bg { background: #d8d8d8; }
+
+    .matrix-cell img { display: block; flex-shrink: 0; }
+
+    .verdict {
+      font-size: 9px;
+      letter-spacing: 1px;
+      line-height: 1.5;
+    }
+
+    .verdict.ok   { color: #6aaa6a; }
+    .verdict.warn { color: #b89a3a; }
+    .verdict.fail { color: #aa5a5a; }
+
+    /* ── polo mockup ── */
+    .polo-shirt {
+      width: 220px; height: 240px;
+      border-radius: 10px 10px 4px 4px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .polo-shirt.dark  { background: #0f0f0f; box-shadow: 0 4px 32px rgba(0,0,0,0.8); }
+    .polo-shirt.white { background: #f2f2f2; box-shadow: 0 4px 32px rgba(0,0,0,0.3); }
+    .polo-shirt::before {
+      content: ''; position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 56px; height: 32px;
+      border-radius: 0 0 50% 50%;
+      background: inherit;
+      border: 2px solid rgba(255,255,255,0.06);
+    }
+    .polo-shirt.white::before { border-color: rgba(0,0,0,0.06); }
+    .polo-shirt img { width: 100px; height: auto; margin-top: 16px; }
+
+    footer {
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: #2a2a2a;
+      text-transform: uppercase;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════
+       1. Full logo — full size
+  ═══════════════════════════════════════════════ -->
+  <p class="section-title">Full logo · print &amp; web large ≥ 200 px</p>
+  <div class="row">
+    <div class="card">
+      <span class="label">Dark</span>
+      <div class="logo-wrap">
+        <img src="SI_logo_dark.svg" width="320" alt="Full logo dark"/>
+      </div>
+    </div>
+    <div class="card">
+      <span class="label">Light</span>
+      <div class="logo-wrap">
+        <img src="SI_logo_light.svg" width="320" alt="Full logo light"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       2. Compact logo — full size
+  ═══════════════════════════════════════════════ -->
+  <p class="section-title">Compact logo · small formats — business card · email · PDF header</p>
+  <div class="row">
+    <div class="card">
+      <span class="label">Compact Dark</span>
+      <div class="logo-wrap">
+        <img src="SI_logo_dark_sm.svg" width="260" alt="Compact logo dark"/>
+      </div>
+    </div>
+    <div class="card">
+      <span class="label">Compact Light</span>
+      <div class="logo-wrap">
+        <img src="SI_logo_light_sm.svg" width="260" alt="Compact logo light"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       3. Readability size matrix
+  ═══════════════════════════════════════════════ -->
+  <p class="section-title">Readability test — rendered widths</p>
+
+  <div class="matrix">
+    <div class="matrix-header">
+      <div>Variant</div>
+      <div>80 px wide</div>
+      <div>120 px wide</div>
+      <div>200 px wide</div>
+      <div>320 px wide</div>
+    </div>
+
+    <!-- Full dark -->
+    <div class="matrix-row">
+      <div class="matrix-row-label">Full · dark</div>
+
+      <div class="matrix-cell">
+        <img src="SI_logo_dark.svg" width="80"/>
+        <span class="verdict warn">SI legible<br/>tagline invisible</span>
+      </div>
+      <div class="matrix-cell">
+        <img src="SI_logo_dark.svg" width="120"/>
+        <span class="verdict warn">SI clear<br/>tagline ~3 px</span>
+      </div>
+      <div class="matrix-cell">
+        <img src="SI_logo_dark.svg" width="200"/>
+        <span class="verdict ok">SI excellent<br/>tagline readable</span>
+      </div>
+      <div class="matrix-cell">
+        <img src="SI_logo_dark.svg" width="320"/>
+        <span class="verdict ok">All elements<br/>fully legible</span>
+      </div>
+    </div>
+
+    <!-- Compact dark -->
+    <div class="matrix-row">
+      <div class="matrix-row-label">Compact · dark</div>
+
+      <div class="matrix-cell">
+        <img src="SI_logo_dark_sm.svg" width="80"/>
+        <span class="verdict ok">SI legible<br/>tagline ~5 px ✓</span>
+      </div>
+      <div class="matrix-cell">
+        <img src="SI_logo_dark_sm.svg" width="120"/>
+        <span class="verdict ok">SI excellent<br/>tagline clear ✓</span>
+      </div>
+      <div class="matrix-cell">
+        <img src="SI_logo_dark_sm.svg" width="200"/>
+        <span class="verdict ok">All elements<br/>very clear ✓</span>
+      </div>
+      <div class="matrix-cell">
+        <img src="SI_logo_dark_sm.svg" width="320"/>
+        <span class="verdict ok">Optimal ✓</span>
+      </div>
+    </div>
+
+    <!-- Full light -->
+    <div class="matrix-row">
+      <div class="matrix-row-label">Full · light</div>
+
+      <div class="matrix-cell light-bg">
+        <img src="SI_logo_light.svg" width="80"/>
+        <span class="verdict warn">SI legible<br/>tagline invisible</span>
+      </div>
+      <div class="matrix-cell light-bg">
+        <img src="SI_logo_light.svg" width="120"/>
+        <span class="verdict warn">SI clear<br/>tagline ~3 px</span>
+      </div>
+      <div class="matrix-cell light-bg">
+        <img src="SI_logo_light.svg" width="200"/>
+        <span class="verdict ok">SI excellent<br/>tagline readable</span>
+      </div>
+      <div class="matrix-cell light-bg">
+        <img src="SI_logo_light.svg" width="320"/>
+        <span class="verdict ok">All elements<br/>fully legible</span>
+      </div>
+    </div>
+
+    <!-- Compact light -->
+    <div class="matrix-row">
+      <div class="matrix-row-label">Compact · light</div>
+
+      <div class="matrix-cell light-bg">
+        <img src="SI_logo_light_sm.svg" width="80"/>
+        <span class="verdict ok">SI legible<br/>tagline ~5 px ✓</span>
+      </div>
+      <div class="matrix-cell light-bg">
+        <img src="SI_logo_light_sm.svg" width="120"/>
+        <span class="verdict ok">SI excellent<br/>tagline clear ✓</span>
+      </div>
+      <div class="matrix-cell light-bg">
+        <img src="SI_logo_light_sm.svg" width="200"/>
+        <span class="verdict ok">All elements<br/>very clear ✓</span>
+      </div>
+      <div class="matrix-cell light-bg">
+        <img src="SI_logo_light_sm.svg" width="320"/>
+        <span class="verdict ok">Optimal ✓</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       4. Polo mockup
+  ═══════════════════════════════════════════════ -->
+  <p class="section-title">Polo mockup</p>
+  <div class="row">
+    <div class="card">
+      <span class="label">Polo scura</span>
+      <div class="polo-shirt dark">
+        <img src="SI_logo_dark.svg" alt="Logo su polo scura"/>
+      </div>
+    </div>
+    <div class="card">
+      <span class="label">Polo bianca</span>
+      <div class="polo-shirt white">
+        <img src="SI_logo_light.svg" alt="Logo su polo bianca"/>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Full: SI_logo_dark/light.svg · viewBox 400×480 · use ≥ 200 px wide<br/>
+    Compact: SI_logo_dark/light_sm.svg · viewBox 200×230 · use 80–200 px wide
+  </footer>
+
+</body>
+</html>
