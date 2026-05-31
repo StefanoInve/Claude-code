@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crea Reel</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #252525;
+      --accent: #ff4d6d;
+      --accent2: #c9184a;
+      --text: #f0f0f0;
+      --text-muted: #888;
+      --border: #333;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface);
+    }
+    header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff4d6d, #ff9a3c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    header .subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      height: calc(100vh - 53px);
+    }
+    .main-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+    }
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--accent);
+      background: rgba(255,77,109,0.05);
+    }
+    .upload-zone p { color: var(--text-muted); font-size: 14px; margin-top: 6px; }
+    .upload-zone p strong { color: var(--text); }
+    .upload-icon { font-size: 36px; margin-bottom: 4px; }
+    .link { color: var(--accent); cursor: pointer; text-decoration: underline; }
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .timeline { display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 8px; }
+    .clip-card {
+      position: relative;
+      width: 116px;
+      background: var(--surface);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      cursor: grab;
+      transition: border-color 0.15s, transform 0.15s, opacity 0.15s;
+      user-select: none;
+    }
+    .clip-card:active { cursor: grabbing; }
+    .clip-card.selected { border-color: var(--accent); }
+    .clip-card.drag-source { opacity: 0.35; transform: scale(0.96); }
+    .clip-card.drag-over-target { border-color: #fff; transform: scale(1.03); }
+    .clip-thumb { width: 116px; height: 76px; object-fit: cover; display: block; }
+    .clip-info { padding: 5px 8px; font-size: 12px; }
+    .clip-name {
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text);
+    }
+    .clip-dur { color: var(--text-muted); }
+    .clip-remove {
+      position: absolute; top: 4px; right: 4px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(0,0,0,0.75); border: none; color: #fff;
+      font-size: 11px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.15s;
+    }
+    .clip-card:hover .clip-remove { opacity: 1; }
+    .clip-badge {
+      position: absolute; top: 4px; left: 4px;
+      background: rgba(0,0,0,0.6); border-radius: 4px;
+      padding: 1px 5px; font-size: 10px; color: #fff;
+    }
+    .clip-number {
+      position: absolute; bottom: 29px; left: 4px;
+      background: rgba(255,77,109,0.9); color: #fff;
+      border-radius: 4px; padding: 1px 5px;
+      font-size: 10px; font-weight: 700;
+    }
+    .empty-note {
+      color: var(--text-muted); font-size: 13px; padding: 12px 0;
+    }
+    .side-panel {
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+    }
+    .preview-wrap {
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 12px 16px;
+      flex-shrink: 0;
+    }
+    #previewCanvas {
+      width: 100%; max-width: 280px; height: auto;
+      border-radius: 10px; display: block;
+    }
+    .controls {
+      display: flex; gap: 6px; padding: 8px 12px;
+      background: var(--surface); align-items: center;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .btn {
+      padding: 7px 14px; border-radius: 8px; border: none;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent2); }
+    .btn-secondary { background: var(--surface2); color: var(--text); }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-icon {
+      width: 34px; height: 34px; padding: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 15px;
+    }
+    .progress-bar {
+      flex: 1; height: 4px; background: var(--border);
+      border-radius: 2px; overflow: hidden; cursor: pointer;
+    }
+    .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.08s; }
+    .time-label { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+    .settings { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .setting-group {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 12px; display: flex; flex-direction: column; gap: 9px;
+    }
+    .setting-group h3 {
+      font-size: 12px; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    label { font-size: 13px; color: var(--text); display: flex; flex-direction: column; gap: 4px; }
+    label span { font-size: 12px; color: var(--text-muted); }
+    input[type=text], input[type=number], select {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text); padding: 6px 10px;
+      font-size: 13px; width: 100%; outline: none;
+    }
+    input[type=text]:focus, input[type=number]:focus, select:focus {
+      border-color: var(--accent);
+    }
+    input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    input[type=color] {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; height: 32px; width: 100%; cursor: pointer;
+    }
+    select option { background: var(--surface2); }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .file-btn {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text); padding: 8px 12px;
+      font-size: 13px; cursor: pointer; text-align: center;
+      transition: border-color 0.15s; display: block;
+    }
+    .file-btn:hover { border-color: var(--accent); }
+    .music-info {
+      font-size: 12px; color: var(--accent);
+      display: none; align-items: center; gap: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .row { display: flex; align-items: center; gap: 8px; }
+    .row input[type=checkbox] { width: 14px; height: 14px; cursor: pointer; }
+    .export-section {
+      padding: 0 14px 14px;
+    }
+    .export-btn-big {
+      width: 100%; padding: 12px;
+      background: linear-gradient(135deg, #ff4d6d, #ff9a3c);
+      border: none; border-radius: var(--radius); color: #fff;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s; letter-spacing: 0.02em;
+    }
+    .export-btn-big:hover { opacity: 0.9; }
+    .export-btn-big:disabled { opacity: 0.5; cursor: not-allowed; }
+    .export-status {
+      font-size: 12px; color: var(--text-muted);
+      text-align: center; padding: 6px 0; display: none;
+    }
+    .export-status.visible { display: block; }
+    .toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 18px;
+      font-size: 13px; color: var(--text);
+      z-index: 999; opacity: 0; pointer-events: none;
+      transition: opacity 0.25s; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 700px) {
+      .layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      .side-panel { border-top: 1px solid var(--border); }
+      header .subtitle { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span style="font-size:26px">🎬</span>
+  <h1>Crea Reel</h1>
+  <span class="subtitle">Monta le tue foto e video in un reel verticale</span>
+</header>
+
+<div class="layout">
+
+  <!-- SINISTRA: upload + timeline -->
+  <div class="main-panel">
+
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none">
+      <div class="upload-icon">📁</div>
+      <p><strong>Trascina foto e video qui</strong></p>
+      <p>oppure <span class="link" onclick="document.getElementById('fileInput').click()">clicca per selezionare dalla galleria</span></p>
+      <p style="font-size:11px;margin-top:8px">JPG · PNG · GIF · MP4 · MOV · WebM</p>
+    </div>
+
+    <div class="section-label" id="tlLabel" style="display:none">
+      Clip — trascina per riordinare, clicca per modificare
+    </div>
+    <div class="timeline" id="timeline">
+      <div class="empty-note" id="emptyNote">Nessun clip caricato.</div>
+    </div>
+
+  </div>
+
+  <!-- DESTRA: anteprima + impostazioni -->
+  <div class="side-panel">
+
+    <div class="preview-wrap">
+      <canvas id="previewCanvas" width="540" height="960"></canvas>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-secondary btn-icon" id="rewindBtn" title="Dall'inizio">⏮</button>
+      <button class="btn btn-primary btn-icon" id="playBtn" title="Play/Pausa">▶</button>
+      <button class="btn btn-secondary btn-icon" id="stopBtn" title="Stop">⏹</button>
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <span class="time-label" id="timeLabel">0:00</span>
+    </div>
+
+    <div class="settings">
+
+      <!-- Clip selezionato -->
+      <div class="setting-group" id="clipSettings" style="display:none">
+        <h3>✂️ Clip selezionato</h3>
+        <label>
+          <span>Durata (secondi) — solo per le foto</span>
+          <input type="number" id="clipDuration" min="0.5" max="60" step="0.5" value="3">
+        </label>
+        <label>
+          <span>Testo overlay</span>
+          <input type="text" id="clipText" placeholder="Scrivi qualcosa...">
+        </label>
+        <div class="two-col">
+          <label>
+            <span>Colore testo</span>
+            <input type="color" id="clipTextColor" value="#ffffff">
+          </label>
+          <label>
+            <span>Posizione</span>
+            <select id="clipTextPos">
+              <option value="bottom">Basso</option>
+              <option value="top">Alto</option>
+              <option value="center">Centro</option>
+            </select>
+          </label>
+        </div>
+        <label>
+          <span>Dimensione testo — <span id="clipTextSizeVal">32</span>px</span>
+          <input type="range" id="clipTextSize" min="16" max="80" value="32">
+        </label>
+      </div>
+
+      <!-- Musica -->
+      <div class="setting-group">
+        <h3>🎵 Musica di sottofondo</h3>
+        <input type="file" id="musicInput" accept="audio/*" style="display:none">
+        <div class="file-btn" onclick="document.getElementById('musicInput').click()">
+          Carica file audio (MP3, AAC, OGG...)
+        </div>
+        <div class="music-info" id="musicInfo">
+          <span>♪</span><span id="musicName" style="overflow:hidden;text-overflow:ellipsis"></span>
+          <span class="link" style="margin-left:auto;flex-shrink:0" onclick="removeMusic()">Rimuovi</span>
+        </div>
+        <div class="row">
+          <input type="checkbox" id="musicLoop" checked>
+          <label style="flex-direction:row;gap:0"><span>Loop musica</span></label>
+        </div>
+        <label>
+          <span>Volume — <span id="musicVolumeVal">70</span>%</span>
+          <input type="range" id="musicVolume" min="0" max="100" value="70">
+        </label>
+      </div>
+
+      <!-- Output -->
+      <div class="setting-group">
+        <h3>⚙️ Impostazioni output</h3>
+        <label>
+          <span>Formato video</span>
+          <select id="outputFormat">
+            <option value="9:16">Reel verticale 9:16 (Instagram/TikTok)</option>
+            <option value="1:1">Quadrato 1:1</option>
+            <option value="16:9">Orizzontale 16:9 (YouTube)</option>
+          </select>
+        </label>
+        <label>
+          <span>Transizione tra clip</span>
+          <select id="transitionType">
+            <option value="fade">Dissolvenza</option>
+            <option value="cut">Taglio diretto</option>
+            <option value="slide">Scorri</option>
+          </select>
+        </label>
+        <label>
+          <span>Durata transizione — <span id="transDurVal">0.5</span>s</span>
+          <input type="range" id="transitionDur" min="0" max="1.5" step="0.1" value="0.5">
+        </label>
+      </div>
+
+    </div>
+
+    <div class="export-section">
+      <button class="export-btn-big" id="exportBtn">⬇️ Esporta Reel</button>
+      <div class="export-status" id="exportStatus"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Stato ────────────────────────────────────────────────────────────────────
+
+const state = {
+  clips: [],
+  // clip = { id, type:'photo'|'video', file, url, thumb, duration,
+  //           text, textColor, textPos, textSize, imgEl, videoEl }
+  music: null,  // { url, file }
+  playing: false,
+  recording: false,
+  playTime: 0,
+  lastTs: null,
+  rafId: null,
+  selectedId: null,
+};
+
+let _uid = 0;
+const uid = () => ++_uid;
+
+// ── Toast ────────────────────────────────────────────────────────────────────
+
+function toast(msg, dur = 2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), dur);
+}
+
+// ── Canvas ────────────────────────────────────────────────────────────────────
+
+const canvas = document.getElementById('previewCanvas');
+const ctx = canvas.getContext('2d');
+
+const FORMATS = { '9:16': [540,960], '1:1': [720,720], '16:9': [960,540] };
+
+function setFormat(fmt) {
+  [canvas.width, canvas.height] = FORMATS[fmt] || [540,960];
+  drawFrame();
+}
+document.getElementById('outputFormat').addEventListener('change', e => setFormat(e.target.value));
+
+function totalDuration() {
+  return state.clips.reduce((s, c) => s + c.duration, 0);
+}
+
+function clipAtTime(t) {
+  let acc = 0;
+  for (const c of state.clips) {
+    if (t < acc + c.duration) return { clip: c, localT: t - acc, idx: state.clips.indexOf(c) };
+    acc += c.duration;
+  }
+  if (!state.clips.length) return null;
+  const last = state.clips[state.clips.length - 1];
+  return { clip: last, localT: last.duration, idx: state.clips.length - 1 };
+}
+
+function drawFrame() {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  if (!state.clips.length) {
+    ctx.fillStyle = '#444';
+    ctx.font = `16px 'Segoe UI', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('Carica foto o video per iniziare', W / 2, H / 2);
+    return;
+  }
+
+  const t = Math.min(state.playTime, totalDuration());
+  const info = clipAtTime(t);
+  if (!info) return;
+
+  const { clip, localT, idx } = info;
+  const next = state.clips[idx + 1] || null;
+  const td = parseFloat(document.getElementById('transitionDur').value);
+  const timeLeft = clip.duration - localT;
+  const transP = (td > 0 && next && timeLeft < td) ? (1 - timeLeft / td) : 0;
+  const transition = document.getElementById('transitionType').value;
+
+  if (transP > 0 && transition === 'fade') {
+    // Draw current fading out
+    ctx.save();
+    ctx.globalAlpha = 1 - transP;
+    renderClipToCanvas(clip, localT, W, H);
+    ctx.restore();
+    // Draw next fading in
+    ctx.save();
+    ctx.globalAlpha = transP;
+    renderClipToCanvas(next, 0, W, H);
+    ctx.restore();
+  } else if (transP > 0 && transition === 'slide') {
+    // Current slides left, next slides in from right
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, W * (1 - transP), H); ctx.clip();
+    ctx.translate(-W * transP, 0);
+    renderClipToCanvas(clip, localT, W, H);
+    ctx.restore();
+    ctx.save();
+    ctx.beginPath(); ctx.rect(W * (1 - transP), 0, W, H); ctx.clip();
+    ctx.translate(W * (1 - transP), 0);
+    renderClipToCanvas(next, 0, W, H);
+    ctx.restore();
+  } else {
+    renderClipToCanvas(clip, localT, W, H);
+  }
+
+  if (clip.text) drawText(clip, W, H);
+}
+
+function renderClipToCanvas(clip, localT, W, H) {
+  if (clip.type === 'photo') {
+    if (clip.imgEl && clip.imgEl.complete && clip.imgEl.naturalWidth) {
+      drawCover(clip.imgEl, clip.imgEl.naturalWidth, clip.imgEl.naturalHeight, W, H);
+    }
+  } else if (clip.type === 'video' && clip.videoEl) {
+    const v = clip.videoEl;
+    if (!state.playing && !state.recording) {
+      const target = Math.min(localT, v.duration || 0);
+      if (Math.abs(v.currentTime - target) > 0.15) v.currentTime = target;
+    }
+    if (v.readyState >= 2) {
+      drawCover(v, v.videoWidth, v.videoHeight, W, H);
+    }
+  }
+}
+
+function drawCover(src, sw, sh, W, H) {
+  if (!sw || !sh) return;
+  const scale = Math.max(W / sw, H / sh);
+  const dw = sw * scale, dh = sh * scale;
+  ctx.drawImage(src, (W - dw) / 2, (H - dh) / 2, dw, dh);
+}
+
+function drawText(clip, W, H) {
+  const { text, textColor = '#fff', textPos = 'bottom', textSize = 32 } = clip;
+  ctx.save();
+  ctx.font = `bold ${textSize}px 'Segoe UI', sans-serif`;
+  ctx.textAlign = 'center';
+  const lines = text.split('\n');
+  const lh = textSize * 1.35;
+  let baseY;
+  if (textPos === 'top') baseY = textSize + 24;
+  else if (textPos === 'center') baseY = H / 2 - (lines.length - 1) * lh / 2;
+  else baseY = H - (lines.length - 1) * lh - 44;
+
+  // Shadow box
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  lines.forEach((line, i) => {
+    const mw = ctx.measureText(line).width;
+    ctx.fillRect(W / 2 - mw / 2 - 12, baseY + i * lh - textSize, mw + 24, textSize + 10);
+  });
+
+  ctx.fillStyle = textColor;
+  lines.forEach((line, i) => ctx.fillText(line, W / 2, baseY + i * lh));
+  ctx.restore();
+}
+
+// ── Caricamento file ──────────────────────────────────────────────────────────
+
+async function makeThumbnail(file, type) {
+  return new Promise(resolve => {
+    const c = document.createElement('canvas');
+    c.width = 116; c.height = 76;
+    const x = c.getContext('2d');
+    if (type === 'photo') {
+      const img = new Image();
+      img.onload = () => {
+        const s = Math.max(116 / img.width, 76 / img.height);
+        x.drawImage(img, (116 - img.width*s)/2, (76 - img.height*s)/2, img.width*s, img.height*s);
+        resolve(c.toDataURL());
+      };
+      img.onerror = () => resolve('');
+      img.src = URL.createObjectURL(file);
+    } else {
+      const v = document.createElement('video');
+      v.muted = true;
+      v.onloadeddata = () => { v.currentTime = 0.5; };
+      v.onseeked = () => {
+        const s = Math.max(116 / v.videoWidth, 76 / v.videoHeight);
+        x.drawImage(v, (116 - v.videoWidth*s)/2, (76 - v.videoHeight*s)/2, v.videoWidth*s, v.videoHeight*s);
+        resolve(c.toDataURL());
+      };
+      v.onerror = () => resolve('');
+      v.src = URL.createObjectURL(file);
+    }
+  });
+}
+
+async function addFiles(files) {
+  if (!files.length) return;
+  toast(`Caricamento ${files.length} file...`);
+
+  for (const file of files) {
+    const isVideo = file.type.startsWith('video/');
+    const isPhoto = file.type.startsWith('image/');
+    if (!isVideo && !isPhoto) continue;
+
+    const type = isVideo ? 'video' : 'photo';
+    const url = URL.createObjectURL(file);
+    const thumb = await makeThumbnail(file, type);
+
+    let duration = 3, videoEl = null, imgEl = null;
+
+    if (type === 'video') {
+      videoEl = document.createElement('video');
+      videoEl.src = url;
+      videoEl.playsInline = true;
+      videoEl.preload = 'metadata';
+      await new Promise(r => {
+        videoEl.onloadedmetadata = () => { duration = videoEl.duration || 5; r(); };
+        videoEl.onerror = r;
+        setTimeout(r, 4000);
+      });
+    } else {
+      imgEl = new Image();
+      imgEl.src = url;
+      await new Promise(r => { imgEl.onload = r; imgEl.onerror = r; setTimeout(r, 3000); });
+    }
+
+    state.clips.push({
+      id: uid(), type, file, url, thumb,
+      duration: parseFloat(duration.toFixed(2)),
+      text: '', textColor: '#ffffff', textPos: 'bottom', textSize: 32,
+      imgEl, videoEl,
+    });
+  }
+
+  renderTimeline();
+  drawFrame();
+  toast(`${state.clips.length} clip pronti`);
+}
+
+// ── Timeline ──────────────────────────────────────────────────────────────────
+
+let dragSrcId = null;
+
+function renderTimeline() {
+  const tl = document.getElementById('timeline');
+  const lbl = document.getElementById('tlLabel');
+  const empty = document.getElementById('emptyNote');
+
+  tl.innerHTML = '';
+
+  if (!state.clips.length) {
+    lbl.style.display = 'none';
+    tl.appendChild(empty);
+    return;
+  }
+  lbl.style.display = 'block';
+
+  state.clips.forEach((clip, idx) => {
+    const card = document.createElement('div');
+    card.className = 'clip-card' + (clip.id === state.selectedId ? ' selected' : '');
+    card.dataset.id = clip.id;
+    card.draggable = true;
+
+    card.innerHTML = `
+      <img class="clip-thumb" src="${clip.thumb}" alt="">
+      <div class="clip-number">${idx + 1}</div>
+      <div class="clip-badge">${clip.type === 'video' ? '🎬' : '🖼️'}</div>
+      <div class="clip-info">
+        <div class="clip-name">${clip.file.name}</div>
+        <div class="clip-dur">${clip.duration.toFixed(1)}s</div>
+      </div>
+      <button class="clip-remove" title="Rimuovi clip">✕</button>
+    `;
+
+    card.addEventListener('click', () => selectClip(clip.id));
+    card.querySelector('.clip-remove').addEventListener('click', e => {
+      e.stopPropagation(); removeClip(clip.id);
+    });
+    card.addEventListener('dragstart', () => {
+      dragSrcId = clip.id; card.classList.add('drag-source');
+    });
+    card.addEventListener('dragend', () => card.classList.remove('drag-source'));
+    card.addEventListener('dragover', e => {
+      e.preventDefault(); card.classList.add('drag-over-target');
+    });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over-target'));
+    card.addEventListener('drop', e => {
+      e.preventDefault(); card.classList.remove('drag-over-target');
+      if (!dragSrcId || dragSrcId === clip.id) return;
+      const si = state.clips.findIndex(c => c.id === dragSrcId);
+      const ti = state.clips.findIndex(c => c.id === clip.id);
+      const [mv] = state.clips.splice(si, 1);
+      state.clips.splice(ti, 0, mv);
+      renderTimeline();
+    });
+
+    tl.appendChild(card);
+  });
+}
+
+function selectClip(id) {
+  state.selectedId = id;
+  const clip = state.clips.find(c => c.id === id);
+  renderTimeline();
+
+  const panel = document.getElementById('clipSettings');
+  if (!clip) { panel.style.display = 'none'; return; }
+  panel.style.display = 'flex';
+
+  document.getElementById('clipDuration').value = clip.duration;
+  document.getElementById('clipText').value = clip.text || '';
+  document.getElementById('clipTextColor').value = clip.textColor || '#ffffff';
+  document.getElementById('clipTextPos').value = clip.textPos || 'bottom';
+  document.getElementById('clipTextSize').value = clip.textSize || 32;
+  document.getElementById('clipTextSizeVal').textContent = clip.textSize || 32;
+}
+
+function removeClip(id) {
+  const i = state.clips.findIndex(c => c.id === id);
+  if (i !== -1) { URL.revokeObjectURL(state.clips[i].url); state.clips.splice(i, 1); }
+  if (state.selectedId === id) {
+    state.selectedId = null;
+    document.getElementById('clipSettings').style.display = 'none';
+  }
+  renderTimeline(); drawFrame();
+}
+
+// Sync clip settings in real-time
+['clipDuration','clipText','clipTextColor','clipTextPos','clipTextSize'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    const clip = state.clips.find(c => c.id === state.selectedId);
+    if (!clip) return;
+    clip.duration   = Math.max(0.5, parseFloat(document.getElementById('clipDuration').value) || 3);
+    clip.text       = document.getElementById('clipText').value;
+    clip.textColor  = document.getElementById('clipTextColor').value;
+    clip.textPos    = document.getElementById('clipTextPos').value;
+    clip.textSize   = parseInt(document.getElementById('clipTextSize').value);
+    document.getElementById('clipTextSizeVal').textContent = clip.textSize;
+    const durEl = document.getElementById('timeline').querySelector(`[data-id="${clip.id}"] .clip-dur`);
+    if (durEl) durEl.textContent = clip.duration.toFixed(1) + 's';
+    drawFrame();
+  });
+});
+
+// ── Musica ────────────────────────────────────────────────────────────────────
+
+const musicAudio = new Audio();
+musicAudio.loop = true;
+musicAudio.volume = 0.7;
+
+document.getElementById('musicInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (state.music) URL.revokeObjectURL(state.music.url);
+  state.music = { url: URL.createObjectURL(file), file };
+  musicAudio.src = state.music.url;
+  document.getElementById('musicInfo').style.display = 'flex';
+  document.getElementById('musicName').textContent = file.name;
+  toast('Musica caricata: ' + file.name);
+});
+
+function removeMusic() {
+  if (!state.music) return;
+  URL.revokeObjectURL(state.music.url);
+  state.music = null;
+  musicAudio.src = '';
+  document.getElementById('musicInfo').style.display = 'none';
+  toast('Musica rimossa');
+}
+
+document.getElementById('musicLoop').addEventListener('change', e => { musicAudio.loop = e.target.checked; });
+document.getElementById('musicVolume').addEventListener('input', e => {
+  musicAudio.volume = e.target.value / 100;
+  document.getElementById('musicVolumeVal').textContent = e.target.value;
+});
+
+document.getElementById('transitionDur').addEventListener('input', e => {
+  document.getElementById('transDurVal').textContent = parseFloat(e.target.value).toFixed(1);
+});
+
+// ── Playback ──────────────────────────────────────────────────────────────────
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  return `${m}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+}
+
+function syncVideoToTime(playTime) {
+  const info = clipAtTime(playTime);
+  if (!info) return;
+  state.clips.forEach(c => {
+    if (c.type !== 'video' || !c.videoEl) return;
+    if (c === info.clip) {
+      if (state.playing && c.videoEl.paused) c.videoEl.play().catch(()=>{});
+      else if (!state.playing) {
+        if (Math.abs(c.videoEl.currentTime - info.localT) > 0.1) c.videoEl.currentTime = info.localT;
+      }
+    } else {
+      if (!c.videoEl.paused) c.videoEl.pause();
+    }
+  });
+}
+
+function play() {
+  if (!state.clips.length) { toast('Carica prima dei clip!'); return; }
+  state.playing = true;
+  state.lastTs = null;
+  document.getElementById('playBtn').textContent = '⏸';
+  if (state.music) { musicAudio.currentTime = state.playTime / totalDuration() * (musicAudio.duration || 0) || 0; musicAudio.play().catch(()=>{}); }
+  syncVideoToTime(state.playTime);
+  state.rafId = requestAnimationFrame(tick);
+}
+
+function pause() {
+  state.playing = false;
+  if (state.rafId) cancelAnimationFrame(state.rafId);
+  document.getElementById('playBtn').textContent = '▶';
+  musicAudio.pause();
+  state.clips.forEach(c => { if (c.videoEl) c.videoEl.pause(); });
+  drawFrame();
+}
+
+function stop() {
+  pause();
+  state.playTime = 0;
+  musicAudio.currentTime = 0;
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('timeLabel').textContent = '0:00';
+  drawFrame();
+}
+
+function tick(ts) {
+  if (!state.playing) return;
+  if (state.lastTs != null) state.playTime += (ts - state.lastTs) / 1000;
+  state.lastTs = ts;
+
+  const total = totalDuration();
+  if (state.playTime >= total) { state.playTime = 0; musicAudio.currentTime = 0; }
+
+  syncVideoToTime(state.playTime);
+  drawFrame();
+
+  const pct = total > 0 ? (state.playTime / total * 100).toFixed(1) : 0;
+  document.getElementById('progressFill').style.width = `${pct}%`;
+  document.getElementById('timeLabel').textContent = `${formatTime(state.playTime)} / ${formatTime(total)}`;
+
+  state.rafId = requestAnimationFrame(tick);
+}
+
+document.getElementById('playBtn').addEventListener('click', () => state.playing ? pause() : play());
+document.getElementById('stopBtn').addEventListener('click', stop);
+document.getElementById('rewindBtn').addEventListener('click', stop);
+
+// Click progress bar to seek
+document.getElementById('progressBar').addEventListener('click', e => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const frac = (e.clientX - rect.left) / rect.width;
+  state.playTime = frac * totalDuration();
+  if (!state.playing) { syncVideoToTime(state.playTime); drawFrame(); }
+  document.getElementById('progressFill').style.width = `${frac*100}%`;
+});
+
+// ── Upload handlers ───────────────────────────────────────────────────────────
+
+const uploadZone = document.getElementById('uploadZone');
+document.getElementById('fileInput').addEventListener('change', e => addFiles(Array.from(e.target.files)));
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('drag-over');
+  addFiles(Array.from(e.dataTransfer.files));
+});
+
+// ── Export ────────────────────────────────────────────────────────────────────
+
+document.getElementById('exportBtn').addEventListener('click', exportReel);
+
+async function exportReel() {
+  if (!state.clips.length) { toast('Nessun clip da esportare!'); return; }
+  if (state.playing) pause();
+
+  const exportBtn = document.getElementById('exportBtn');
+  const statusEl = document.getElementById('exportStatus');
+  exportBtn.disabled = true;
+  statusEl.className = 'export-status visible';
+  statusEl.textContent = 'Preparazione...';
+
+  await new Promise(r => setTimeout(r, 80));
+
+  // Web Audio per mixare musica
+  let audioContext = null, audioDestNode = null;
+  try {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    audioDestNode = audioContext.createMediaStreamDestination();
+    if (state.music && musicAudio.src) {
+      const src = audioContext.createMediaElementSource(musicAudio);
+      const gain = audioContext.createGain();
+      gain.gain.value = document.getElementById('musicVolume').value / 100;
+      src.connect(gain);
+      gain.connect(audioDestNode);
+      gain.connect(audioContext.destination);
+    }
+  } catch (e) { console.warn('AudioContext:', e); }
+
+  const canvasStream = canvas.captureStream(30);
+  const tracks = [...canvasStream.getTracks()];
+  if (audioDestNode) tracks.push(...audioDestNode.stream.getAudioTracks());
+  const stream = new MediaStream(tracks);
+
+  const mimeTypes = [
+    'video/webm;codecs=h264,opus',
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm',
+  ];
+  const mime = mimeTypes.find(m => MediaRecorder.isTypeSupported(m)) || 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 5_000_000 });
+  const chunks = [];
+  recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+
+  recorder.start(200);
+
+  const totalD = totalDuration();
+  let exportTime = 0, lastTs = null;
+
+  // Avvia primo clip
+  state.playTime = 0;
+  if (state.clips[0]?.type === 'video' && state.clips[0].videoEl) {
+    state.clips[0].videoEl.currentTime = 0;
+    state.clips[0].videoEl.play().catch(()=>{});
+  }
+  if (state.music) {
+    musicAudio.currentTime = 0;
+    musicAudio.volume = document.getElementById('musicVolume').value / 100;
+    musicAudio.play().catch(()=>{});
+  }
+
+  await new Promise(resolve => {
+    function exportTick(ts) {
+      if (lastTs != null) exportTime += (ts - lastTs) / 1000;
+      lastTs = ts;
+      state.playTime = exportTime;
+
+      const pct = Math.min(exportTime / totalD, 1);
+      statusEl.textContent = `Esportazione... ${Math.round(pct * 100)}%`;
+      document.getElementById('progressFill').style.width = `${pct * 100}%`;
+
+      const info = clipAtTime(exportTime);
+      if (info) {
+        state.clips.forEach(c => {
+          if (c.type !== 'video' || !c.videoEl) return;
+          if (c === info.clip) {
+            if (c.videoEl.paused) c.videoEl.play().catch(()=>{});
+            if (Math.abs(c.videoEl.currentTime - info.localT) > 0.4) c.videoEl.currentTime = info.localT;
+          } else {
+            if (!c.videoEl.paused) c.videoEl.pause();
+          }
+        });
+      }
+
+      drawFrame();
+      if (exportTime >= totalD) { resolve(); return; }
+      requestAnimationFrame(exportTick);
+    }
+    requestAnimationFrame(exportTick);
+  });
+
+  state.clips.forEach(c => { if (c.videoEl) c.videoEl.pause(); });
+  musicAudio.pause();
+  recorder.stop();
+  if (audioContext) audioContext.close();
+
+  await new Promise(r => { recorder.onstop = r; });
+
+  const blob = new Blob(chunks, { type: mime });
+  const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `reel_${Date.now()}.${ext}`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+  statusEl.textContent = `✅ Reel salvato! (${(blob.size / 1024 / 1024).toFixed(1)} MB) — formato ${ext.toUpperCase()}`;
+  document.getElementById('progressFill').style.width = '100%';
+  exportBtn.disabled = false;
+  toast('Reel esportato con successo!', 3500);
+  state.playTime = 0;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+drawFrame();
+</script>
+</body>
+</html>
